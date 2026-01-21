@@ -7,7 +7,7 @@ export function useMapZoom() {
     if (!mapSceneElement || panzoomInstance) return;
 
     panzoomInstance = panzoom(mapSceneElement, {
-      maxZoom: 3,
+      maxZoom: 2,
       minZoom: 1,
       bounds: true,
       boundsPadding: 0.1,
