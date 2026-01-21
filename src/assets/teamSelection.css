@@ -1,0 +1,175 @@
+.legend-container {
+    position: absolute;
+    bottom: 2rem;
+    right: 6rem;
+    width: 220px;
+    background: linear-gradient(135deg, rgba(40, 30, 20, 0.95), rgba(30, 20, 15, 0.98));
+    border: 3px solid #8b7355;
+    border-radius: 8px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(139, 115, 85, 0.3),
+        0 0 20px rgba(139, 115, 85, 0.2);
+    padding: 1rem;
+    z-index: 100;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    backdrop-filter: blur(8px);
+}
+
+.legend-container::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, #6b5744, #8b7355, #6b5744);
+    border-radius: 8px;
+    z-index: -1;
+    opacity: 0.5;
+}
+
+.legend-header {
+    position: relative;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(139, 115, 85, 0.5);
+}
+
+.legend-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #f4e4c1;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.legend-decoration {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 6px;
+    background: linear-gradient(90deg, transparent, #8b7355, transparent);
+    border-radius: 3px;
+}
+
+.legend-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.team-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(20, 15, 10, 0.4);
+    border: 2px solid rgba(139, 115, 85, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.team-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(244, 228, 193, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.team-item:hover::before {
+    left: 100%;
+}
+
+.team-item:hover {
+    background: rgba(40, 30, 20, 0.6);
+    border-color: rgba(139, 115, 85, 0.6);
+    transform: translateX(-3px);
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.team-item.selected {
+    background: rgba(60, 45, 30, 0.8);
+    border-color: #f4e4c1;
+    box-shadow:
+        0 0 15px rgba(244, 228, 193, 0.3),
+        inset 0 0 10px rgba(244, 228, 193, 0.1);
+}
+
+.team-item.selected .team-name {
+    color: #f4e4c1;
+    font-weight: bold;
+}
+
+.team-marker {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #8b7355;
+    border-radius: 50%;
+    background: radial-gradient(circle, #d4af37, #8b7355);
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+    flex-shrink: 0;
+}
+
+.team-item.selected .team-marker {
+    background: radial-gradient(circle, #f4e4c1, #d4af37);
+    border-color: #f4e4c1;
+    box-shadow: 0 0 12px rgba(244, 228, 193, 0.8);
+}
+
+.team-name {
+    color: #c9b896;
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .legend-container {
+        bottom: 1rem;
+        right: 1rem;
+        width: 180px;
+        padding: 0.75rem;
+    }
+
+    .legend-title {
+        font-size: 1rem;
+    }
+
+    .team-item {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .team-name {
+        font-size: 0.85rem;
+    }
+
+    .team-marker {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* For tablets - position legend above zoom controls */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .legend-container {
+        right: 1.5rem;
+    }
+}
