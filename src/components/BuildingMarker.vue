@@ -43,8 +43,13 @@ export default {
     transform: translate(-50%, -50%);
     cursor: pointer;
     z-index: 10;
-    width: 250px;
-    height: 273px;
+    /* Use viewport-based sizing so buildings scale with the map */
+    width: 8.138vw;
+    /* 250px at ~3072px wide viewport */
+    height: 8.893vw;
+    /* 273px at ~3072px wide viewport */
+    max-width: 250px;
+    max-height: 273px;
     transition: all 0.3s ease;
 }
 
@@ -124,10 +129,21 @@ export default {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
+@media (max-width: 1024px) {
+    .building-marker {
+        width: 6vw;
+        height: 6.55vw;
+        max-width: 150px;
+        max-height: 163.8px;
+    }
+}
+
 @media (max-width: 768px) {
     .building-marker {
-        width: 125px;
-        height: 136.5px;
+        width: 10vw;
+        height: 10.92vw;
+        max-width: 125px;
+        max-height: 136.5px;
     }
 
     .building-tooltip {
