@@ -13,13 +13,14 @@
                 <div class="buildings-layer">
                     <BuildingMarker v-for="building in visibleBuildings" :key="building.id" :building="building"
                         :is-selected="selectedBuildingId === building.id"
-                        :style="{ left: building.x + '%', top: building.y + '%' }" @click="handleBuildingClick" />
+                        :style="{ left: building.x + '%', top: building.y + '%' }"
+                        @click="handleBuildingClick(building)" />
                 </div>
             </div>
         </div>
 
         <!-- Building Details Modal -->
-        <BuildingDetailsModal :building="selectedBuilding" @close="closeModal" @upgrade="handleUpgrade" />
+        <BuildingDetailsModal :building="selectedBuilding" @close="closeModal" />
 
         <TeamSelection :teams="teams" @team-selected="handleTeamSelected" />
 
