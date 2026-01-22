@@ -22,6 +22,10 @@
         <!-- Building Details Modal -->
         <BuildingDetailsModal :building="selectedBuilding" @close="closeModal" />
 
+        <!-- Team Stats Panel - TOP LEFT -->
+        <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" />
+
+        <!-- Team Selection - BOTTOM RIGHT -->
         <TeamSelection :teams="teams" @team-selected="handleTeamSelected" />
 
         <!-- Zoom controls -->
@@ -36,6 +40,7 @@
 <script>
 import { useMapZoom } from '@/utils/useMapZoom';
 import TeamSelection from './TeamSelection.vue';
+import TeamStats from './TeamStats.vue';
 import BuildingMarker from './BuildingMarker.vue';
 import buildingLocations from '@/data/buildingLocations.json';
 import BuildingDetailsModal from './BuildingDetailsModal.vue';
@@ -45,6 +50,7 @@ export default {
     name: 'Map',
     components: {
         TeamSelection,
+        TeamStats,
         BuildingMarker,
         BuildingDetailsModal
     },
