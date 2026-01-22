@@ -7,12 +7,11 @@ export function useMapZoom() {
     if (!mapSceneElement || panzoomInstance) return;
 
     panzoomInstance = panzoom(mapSceneElement, {
-      maxZoom: 3,
+      maxZoom: 2.5,
       minZoom: 1,
       bounds: true,
       boundsPadding: 0.1,
-      zoomDoubleClickSpeed: 1,
-      smoothScroll: false,
+      smoothScroll: true,
       beforeMouseDown: () => {
         const transform = panzoomInstance.getTransform();
         return transform.scale <= 1;
@@ -24,28 +23,32 @@ export function useMapZoom() {
     });
 
     panzoomInstance.on('zoom', () => enforceZoomBounds(mapSceneElement));
-    panzoomInstance.on('pan', () => enforcePanLimits(mapSceneElement));
     centerImage();
   };
 
-  const enforceZoomBounds = (mapSceneElement) => {
-    if (!panzoomInstance) return;
+  let isEnforcing = false;
 
-    const transform = panzoomInstance.getTransform();
+const enforceZoomBounds = (mapSceneElement) => {
+  if (!panzoomInstance || isEnforcing) return;
+  
+  isEnforcing = true;
+  const transform = panzoomInstance.getTransform();
 
-    if (mapSceneElement) {
-      if (transform.scale > 1) {
-        mapSceneElement.classList.add('can-pan');
-      } else {
-        mapSceneElement.classList.remove('can-pan');
-      }
+  if (mapSceneElement) {
+    if (transform.scale > 1) {
+      mapSceneElement.classList.add('can-pan');
+    } else {
+      mapSceneElement.classList.remove('can-pan');
     }
+  }
 
-    if (transform.scale <= 1) {
-      panzoomInstance.moveTo(0, 0);
-      panzoomInstance.zoomAbs(0, 0, 1);
-    }
-  };
+  if (transform.scale <= 1) {
+    panzoomInstance.smoothMoveTo(0, 0);
+    panzoomInstance.smoothZoom(0, 0, 1);
+  }
+  
+  isEnforcing = false;
+};
 
   const enforcePanLimits = (mapSceneElement) => {
     if (!panzoomInstance || !mapSceneElement) return;

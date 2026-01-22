@@ -1,0 +1,434 @@
+/* Main Page Container */
+.log-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(135deg, #1a1410 0%, #2a2520 50%, #1a1410 100%);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    overflow: hidden;
+}
+
+/* Log Container - Three Column Layout */
+.log-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1600px;
+    width: 100%;
+    height: calc(100vh - 4rem);
+    max-height: 850px;
+}
+
+/* Log Sections */
+.log-section {
+    background: linear-gradient(135deg, rgba(40, 30, 20, 0.95), rgba(30, 20, 15, 0.98));
+    border: 3px solid #8b7355;
+    border-radius: 12px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(139, 115, 85, 0.3),
+        0 0 20px rgba(139, 115, 85, 0.2);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.log-section::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, #6b5744, #8b7355, #6b5744);
+    border-radius: 12px;
+    z-index: -1;
+    opacity: 0.5;
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    color: #f4e4c1;
+    font-size: 1.5rem;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 1.5px;
+}
+
+.section-ornament {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #8b7355, transparent);
+    margin-bottom: 1rem;
+}
+
+/* Pulse Indicator (Live Activity) */
+.pulse-indicator {
+    width: 12px;
+    height: 12px;
+    background: #4ade80;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #4ade80;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+/* Activity Stream */
+.activity-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.5rem;
+}
+
+.activity-scroll::-webkit-scrollbar,
+.teams-scroll::-webkit-scrollbar,
+.events-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.activity-scroll::-webkit-scrollbar-track,
+.teams-scroll::-webkit-scrollbar-track,
+.events-scroll::-webkit-scrollbar-track {
+    background: rgba(20, 15, 10, 0.4);
+    border-radius: 4px;
+}
+
+.activity-scroll::-webkit-scrollbar-thumb,
+.teams-scroll::-webkit-scrollbar-thumb,
+.events-scroll::-webkit-scrollbar-thumb {
+    background: rgba(139, 115, 85, 0.5);
+    border-radius: 4px;
+}
+
+.activity-scroll::-webkit-scrollbar-thumb:hover,
+.teams-scroll::-webkit-scrollbar-thumb:hover,
+.events-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 115, 85, 0.7);
+}
+
+.activity-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: rgba(20, 15, 10, 0.3);
+    border-left: 3px solid #8b7355;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.activity-item:hover {
+    background: rgba(30, 25, 20, 0.4);
+    border-left-color: #d4af37;
+    transform: translateX(3px);
+}
+
+.activity-item.boss {
+    border-left-color: #dc2626;
+}
+
+.activity-item.clue {
+    border-left-color: #eab308;
+}
+
+.activity-item.achievement {
+    border-left-color: #d4af37;
+}
+
+.activity-item.loot {
+    border-left-color: #8b5cf6;
+}
+
+.activity-item.pet {
+    border-left-color: #ec4899;
+}
+
+.activity-item.slayer {
+    border-left-color: #10b981;
+}
+
+.activity-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-player {
+    color: #f4e4c1;
+    font-weight: bold;
+    font-size: 0.95rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.activity-message {
+    color: #c9b896;
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
+    line-height: 1.4;
+}
+
+.activity-time {
+    color: #a89070;
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+/* Teams & Roster */
+.teams-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.5rem;
+}
+
+.team-block {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(20, 15, 10, 0.3);
+    border: 2px solid rgba(139, 115, 85, 0.3);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.team-block:hover {
+    border-color: rgba(139, 115, 85, 0.6);
+    background: rgba(30, 25, 20, 0.4);
+}
+
+.team-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(139, 115, 85, 0.3);
+}
+
+.team-badge {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #8b7355;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+    flex-shrink: 0;
+}
+
+.team-name {
+    color: #f4e4c1;
+    font-size: 1.2rem;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    flex: 1;
+}
+
+.player-count {
+    color: #a89070;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.players-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.5rem;
+}
+
+.player-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.player-item:hover {
+    background: rgba(0, 0, 0, 0.3);
+    transform: translateX(3px);
+}
+
+.player-marker {
+    color: #d4af37;
+    font-size: 0.8rem;
+}
+
+.player-name {
+    color: #c9b896;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Event Log */
+.events-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.5rem;
+}
+
+.event-item {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: rgba(20, 15, 10, 0.3);
+    border-left: 3px solid #8b7355;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.event-item:hover {
+    background: rgba(30, 25, 20, 0.4);
+    border-left-color: #d4af37;
+    transform: translateX(3px);
+}
+
+.event-item.completion {
+    border-left-color: #4ade80;
+}
+
+.event-item.powerup {
+    border-left-color: #8b5cf6;
+}
+
+.event-item.milestone {
+    border-left-color: #f59e0b;
+}
+
+.event-timestamp {
+    color: #a89070;
+    font-size: 0.75rem;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+
+.event-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.event-team {
+    font-weight: bold;
+    font-size: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.event-description {
+    color: #c9b896;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .log-container {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+    }
+
+    .activity-stream {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .log-page {
+        padding: 1rem;
+    }
+
+    .log-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        height: calc(100vh - 2rem);
+        max-height: none;
+    }
+
+    .log-section {
+        padding: 1rem;
+        max-height: 350px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
+    .activity-stream {
+        grid-column: 1;
+    }
+
+    .players-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .log-page {
+        padding: 0.5rem;
+    }
+
+    .log-section {
+        padding: 0.75rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+    }
+
+    .activity-player,
+    .event-team,
+    .team-name {
+        font-size: 0.9rem;
+    }
+
+    .activity-message,
+    .event-description {
+        font-size: 0.85rem;
+    }
+}
