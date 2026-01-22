@@ -55,13 +55,13 @@
                 </router-link>
             </svg>
 
-            <!-- East - "Rankings" -->
+            <!-- East - "Log" -->
             <svg class="curved-text-svg east-text" viewBox="0 0 200 200">
                 <defs>
                     <path id="eastArc" d="M 100,40 A 60,60 0 0,1 100,160" fill="none" />
                 </defs>
-                <router-link to="/rankings">
-                    <text class="curved-nav-text" :class="{ active: currentRoute === '/rankings' }">
+                <router-link to="/log">
+                    <text class="curved-nav-text" :class="{ active: currentRoute === '/log' }">
                         <textPath href="#eastArc" startOffset="50%" text-anchor="middle">
                             LOG
                         </textPath>
