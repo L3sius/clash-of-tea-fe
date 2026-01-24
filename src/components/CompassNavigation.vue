@@ -88,7 +88,7 @@ export default {
             switch (route.path) {
                 case '/': return 0;        // North (Map)
                 case '/faq': return -90;   // West (F.A.Q)
-                case '/rankings': return 90; // East (Rankings)
+                case '/log': return 90; // East (Log)
                 default: return 0;
             }
         });
