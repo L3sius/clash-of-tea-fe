@@ -2,6 +2,60 @@
     position: absolute;
     bottom: 2rem;
     right: 6rem;
+    z-index: 100;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    transition: all 0.3s ease;
+}
+
+/* Collapsed State - Hamburger Button */
+.legend-container.collapsed {
+    width: auto;
+}
+
+.expand-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(40, 30, 20, 0.95), rgba(30, 20, 15, 0.98));
+    border: 3px solid #8b7355;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(139, 115, 85, 0.3),
+        0 0 20px rgba(139, 115, 85, 0.2);
+    backdrop-filter: blur(8px);
+}
+
+.expand-btn:hover {
+    background: linear-gradient(135deg, rgba(50, 40, 30, 0.95), rgba(40, 30, 25, 0.98));
+    border-color: #d4af37;
+    transform: translateY(-2px);
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.7),
+        0 0 25px rgba(212, 175, 55, 0.3);
+}
+
+.hamburger-icon {
+    font-size: 1.5rem;
+    color: #f4e4c1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.expand-label {
+    color: #c9b896;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Expanded State - Full Panel */
+.legend-panel {
     width: 220px;
     background: linear-gradient(135deg, rgba(40, 30, 20, 0.95), rgba(30, 20, 15, 0.98));
     border: 3px solid #8b7355;
@@ -11,12 +65,11 @@
         inset 0 1px 0 rgba(139, 115, 85, 0.3),
         0 0 20px rgba(139, 115, 85, 0.2);
     padding: 1rem;
-    z-index: 100;
-    font-family: 'Georgia', 'Times New Roman', serif;
     backdrop-filter: blur(8px);
+    position: relative;
 }
 
-.legend-container::before {
+.legend-panel::before {
     content: '';
     position: absolute;
     top: -3px;
@@ -34,6 +87,9 @@
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
     border-bottom: 2px solid rgba(139, 115, 85, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .legend-title {
@@ -41,10 +97,31 @@
     font-size: 1.25rem;
     font-weight: bold;
     color: #f4e4c1;
-    text-align: center;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     letter-spacing: 2px;
     text-transform: uppercase;
+}
+
+.collapse-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(20, 15, 10, 0.4);
+    border: 2px solid rgba(139, 115, 85, 0.3);
+    border-radius: 4px;
+    color: #c9b896;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.collapse-btn:hover {
+    background: rgba(40, 30, 20, 0.6);
+    border-color: #d4af37;
+    color: #f4e4c1;
+    transform: rotate(90deg);
 }
 
 .legend-decoration {
@@ -144,6 +221,9 @@
     .legend-container {
         bottom: 1rem;
         right: 1rem;
+    }
+
+    .legend-panel {
         width: 180px;
         padding: 0.75rem;
     }
@@ -165,11 +245,22 @@
         width: 10px;
         height: 10px;
     }
-}
 
-/* For tablets - position legend above zoom controls */
-@media (max-width: 1024px) and (min-width: 769px) {
-    .legend-container {
-        right: 1.5rem;
+    .collapse-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 0.9rem;
+    }
+
+    .expand-btn {
+        padding: 0.6rem 0.8rem;
+    }
+
+    .hamburger-icon {
+        font-size: 1.25rem;
+    }
+
+    .expand-label {
+        font-size: 0.7rem;
     }
 }

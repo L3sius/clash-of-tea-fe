@@ -1,15 +1,25 @@
 <template>
-    <div class="legend-container">
-        <div class="legend-header">
-            <h3 class="legend-title">Teams</h3>
-            <div class="legend-decoration"></div>
-        </div>
+    <div class="legend-container" :class="{ collapsed: isCollapsed }">
+        <!-- Collapsed State - Expand Button -->
+        <button v-if="isCollapsed" class="expand-btn" @click="toggleCollapse" title="Expand Teams">
+            <span class="hamburger-icon">☰</span>
+            <span class="expand-label">Teams</span>
+        </button>
 
-        <div class="legend-content">
-            <div v-for="team in teams" :key="team.id" class="team-item"
-                :class="{ 'selected': selectedTeamId === team.id }" @click="selectTeam(team.id)">
-                <div class="team-marker"></div>
-                <span class="team-name">{{ team.name }}</span>
+        <!-- Expanded State - Full Panel -->
+        <div v-else class="legend-panel">
+            <div class="legend-header">
+                <h3 class="legend-title">Teams</h3>
+                <button class="collapse-btn" @click="toggleCollapse" title="Collapse">✕</button>
+            </div>
+            <div class="legend-decoration"></div>
+
+            <div class="legend-content">
+                <div v-for="team in teams" :key="team.id" class="team-item"
+                    :class="{ 'selected': selectedTeamId === team.id }" @click="selectTeam(team.id)">
+                    <div class="team-marker"></div>
+                    <span class="team-name">{{ team.name }}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -22,12 +32,7 @@ export default {
     props: {
         teams: {
             type: Array,
-            default: () => [
-                { id: 1, name: 'Crimson Raiders' },
-                { id: 2, name: 'Azure Kingdom' },
-                { id: 3, name: 'Golden Empire' },
-                { id: 4, name: 'Shadow Legion' }
-            ]
+            default: () => []
         },
         initialTeamId: {
             type: Number,
@@ -36,13 +41,17 @@ export default {
     },
     data() {
         return {
-            selectedTeamId: this.initialTeamId
+            selectedTeamId: this.initialTeamId,
+            isCollapsed: false
         }
     },
     methods: {
         selectTeam(teamId) {
             this.selectedTeamId = teamId;
             this.$emit('team-selected', teamId);
+        },
+        toggleCollapse() {
+            this.isCollapsed = !this.isCollapsed;
         }
     },
     mounted() {

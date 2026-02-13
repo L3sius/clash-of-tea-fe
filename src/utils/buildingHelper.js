@@ -1,5 +1,5 @@
 export function getBuildingImagePath(buildingName, buildingLevel) {
-  const normalizedName = buildingName.toLowerCase();
+  const normalizedName = buildingName.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
   
   let levelTier;
   if (buildingLevel >= 1 && buildingLevel <= 3) {
@@ -9,20 +9,23 @@ export function getBuildingImagePath(buildingName, buildingLevel) {
   } else if (buildingLevel >= 7 && buildingLevel <= 9) {
     levelTier = 'max_level';
   } else {
-    levelTier = 'early_level'; // fallback
+    levelTier = 'early_level'; // fallback for level 0
   }
   
   return `/images/buildings/${normalizedName}/${normalizedName}_${levelTier}.png`;
 }
 
 export function parseBackendBuildings(teamsBuildings, buildingLocations) {
-  // Parse new backend structure
   const allBuildings = [];
+  let buildingId = 1;
   
-  teamsBuildings.forEach(team => {
-    team.buildings.forEach(buildingData => {
+  teamsBuildings.forEach(teamData => {
+    teamData.buildings.forEach(buildingData => {
+      // Normalize building names for comparison
+      const normalizedBuildingName = buildingData.building.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+      
       const location = buildingLocations.find(
-        loc => loc.name.toLowerCase() === buildingData.building.toLowerCase()
+        loc => loc.name.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_') === normalizedBuildingName
       );
       
       if (!location) {
@@ -31,13 +34,14 @@ export function parseBackendBuildings(teamsBuildings, buildingLocations) {
       }
       
       allBuildings.push({
-        id: `${team.teamId}-${buildingData.building}`,
-        teamId: team.teamId,
+        id: buildingId++,
+        teamId: teamData.teamId,
+        teamName: teamData.teamName,
         name: buildingData.building,
         level: buildingData.buildingLevel,
-        currentUpgrades: buildingData.currentUpgrades,
-        nextUpgrade: buildingData.nextUpgrade,
-        resourcesForNextUpgrade: buildingData.resourcesForNextUpgrade,
+        upgradable: buildingData.upgradable,
+        allowedSources: buildingData.allowedSources || [],
+        upgradeOptions: buildingData.upgradeOptions || [],
         x: location.x,
         y: location.y,
         icon: getBuildingImagePath(buildingData.building, buildingData.buildingLevel)

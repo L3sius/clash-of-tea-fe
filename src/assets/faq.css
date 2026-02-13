@@ -280,40 +280,326 @@ code {
     font-size: 0.95rem;
 }
 
-/* Task Grid */
-.task-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
-    margin-top: 1.5rem;
+/* How It Works Section */
+.mechanics-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.task-card {
-    padding: 1.25rem;
+.mechanic-card {
     background: rgba(20, 15, 10, 0.4);
     border: 2px solid rgba(139, 115, 85, 0.3);
-    border-radius: 6px;
+    border-radius: 8px;
+    padding: 1.5rem;
     transition: all 0.3s ease;
 }
 
-.task-card:hover {
+.mechanic-card:hover {
     border-color: rgba(139, 115, 85, 0.6);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    background: rgba(30, 25, 20, 0.5);
+    transform: translateX(3px);
 }
 
-.task-card-title {
+.mechanic-card.important {
+    border-color: rgba(212, 175, 55, 0.5);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.mechanic-card.victory {
+    border-color: rgba(255, 215, 0, 0.5);
+    background: rgba(255, 215, 0, 0.05);
+}
+
+.mechanic-title {
     color: #f4e4c1;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     margin: 0 0 1rem 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-.task-example {
+.mechanic-text {
     color: #c9b896;
-    margin: 0.5rem 0;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+}
+
+.mechanic-list {
+    color: #c9b896;
+    line-height: 1.8;
+    padding-left: 1.5rem;
+}
+
+.mechanic-list li {
+    margin-bottom: 0.5rem;
+}
+
+.mechanic-note {
+    color: #a89070;
+    font-style: italic;
     font-size: 0.95rem;
+    margin-top: 1rem;
+}
+
+.example-box {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 3px solid #d4af37;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+    color: #d4af37;
+}
+
+.highlight {
+    color: #f4e4c1;
+    font-weight: bold;
+}
+
+/* Multiplier System */
+.multiplier-section {
+    display: flex;
+    color: #c9b896;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.multiplier-rule {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.multiplier-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.multiplier-note {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 1rem;
+    border-radius: 6px;
+    color: #f4e4c1;
+    margin-top: 1rem;
+}
+
+.victory-list {
+    list-style: none;
+    padding: 0;
+}
+
+.victory-list li {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid #ffd700;
+    border-radius: 4px;
+    color: #c9b896;
+}
+
+/* Tier Thresholds Section */
+.threshold-table-container {
+    overflow-x: auto;
+    margin: 2rem 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.threshold-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(20, 15, 10, 0.6);
+}
+
+.threshold-table thead {
+    background: rgba(40, 30, 20, 0.8);
+}
+
+.threshold-table th {
+    color: #f4e4c1;
+    padding: 1rem;
+    text-align: left;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(139, 115, 85, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.threshold-table td {
+    color: #c9b896;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(139, 115, 85, 0.2);
+}
+
+.tier-row {
+    transition: all 0.3s ease;
+}
+
+.tier-row:hover {
+    background: rgba(40, 30, 20, 0.5);
+}
+
+.tier-badge {
+    font-weight: bold;
+    font-size: 1.05rem;
+}
+
+.tier-row.tier-1 .tier-badge {
+    color: #94a3b8;
+}
+
+.tier-row.tier-2 .tier-badge {
+    color: #67e8f9;
+}
+
+.tier-row.tier-3 .tier-badge {
+    color: #4ade80;
+}
+
+.tier-row.tier-4 .tier-badge {
+    color: #86efac;
+}
+
+.tier-row.tier-5 .tier-badge {
+    color: #fbbf24;
+}
+
+.tier-row.tier-6 .tier-badge {
+    color: #fb923c;
+}
+
+.tier-row.tier-7 .tier-badge {
+    color: #f87171;
+}
+
+.tier-row.tier-8 .tier-badge {
+    color: #c084fc;
+}
+
+.tier-row.tier-9 .tier-badge {
+    color: #ffd700;
+}
+
+.threshold-notes {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.note-item {
+    color: #a89070;
+    font-size: 0.95rem;
+    padding-left: 0.5rem;
+}
+
+/* Building Sources Section */
+.sources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.source-category {
+    background: rgba(20, 15, 10, 0.4);
+    border: 2px solid rgba(139, 115, 85, 0.3);
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.source-category:hover {
+    border-color: rgba(139, 115, 85, 0.6);
+    background: rgba(30, 25, 20, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.category-title {
+    color: #f4e4c1;
+    font-size: 1.2rem;
+    margin: 0 0 1rem 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    border-bottom: 2px solid rgba(139, 115, 85, 0.3);
+    padding-bottom: 0.5rem;
+}
+
+.source-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.source-list li {
+    color: #c9b896;
+    padding: 0.5rem 0;
+    padding-left: 1.25rem;
+    position: relative;
     line-height: 1.6;
+}
+
+.source-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: #d4af37;
+}
+
+.sources-note {
+    background: rgba(212, 175, 55, 0.1);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-top: 2rem;
+}
+
+.sources-note p {
+    color: #f4e4c1;
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sources-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .threshold-table {
+        font-size: 0.9rem;
+    }
+
+    .threshold-table th,
+    .threshold-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .mechanic-card {
+        padding: 1rem;
+    }
+
+    .multiplier-rule {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .threshold-table th,
+    .threshold-table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.85rem;
+    }
+
+    .tier-badge {
+        font-size: 0.95rem;
+    }
+
+    .example-box {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
 }
 
 /* Info Box */
