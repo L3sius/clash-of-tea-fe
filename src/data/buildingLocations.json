@@ -1,7 +1,7 @@
 [
   { "name": "slayer_tower", "x": 30, "y": 40 },
   { "name": "cox", "x": 35, "y": 50 },
-  { "name": "theatre", "x": 50, "y": 70 },
+  { "name": "theatre", "x": 40, "y": 70 },
   { "name": "tombs", "x": 75, "y": 35 },
   { "name": "minigames", "x": 20, "y": 60 },
   { "name": "misc", "x": 20, "y": 60 },
