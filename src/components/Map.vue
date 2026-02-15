@@ -15,18 +15,23 @@
                         :is-selected="selectedBuildingId === building.id"
                         :style="{ left: building.x + '%', top: building.y + '%' }"
                         @click="handleBuildingClick(building)" />
+
+                    <!-- Easter egg markers - always rendered, invisible hover zones -->
+                    <EasterEggMarker v-for="(egg, index) in easterEggs" :key="'egg-' + index" :egg="egg"
+                        :style="{ left: egg.x + '%', top: egg.y + '%' }" />
                 </div>
             </div>
         </div>
 
         <!-- Building Details Modal -->
-        <BuildingDetailsModal :building="selectedBuilding" @close="closeModal" />
+        <BuildingDetailsModal :building="selectedBuilding" :team-resources="selectedTeamResources"
+            @close="closeModal" />
 
         <!-- Team Stats Panel - TOP LEFT -->
         <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" />
 
         <!-- Team Selection - BOTTOM RIGHT -->
-        <TeamSelection :teams="teams" @team-selected="handleTeamSelected" />
+        <TeamSelection :teams="teams" :initial-team-id="selectedTeamId" @team-selected="handleTeamSelected" />
     </div>
 </template>
 
@@ -37,8 +42,11 @@ import TeamStats from './TeamStats.vue';
 import BuildingMarker from './BuildingMarker.vue';
 import buildingLocations from '@/data/buildingLocations.json';
 import BuildingDetailsModal from './BuildingDetailsModal.vue';
+import EasterEggMarker from './EasterEggMarker.vue';
 import { parseBackendBuildings } from '@/utils/buildingHelper';
 import apiService from '@/services/apiService';
+import easterEggLocations from '@/data/easterEggLocations.json';
+import { cacheGet, cacheSet } from '@/utils/useCache';
 
 export default {
     name: 'Map',
@@ -46,7 +54,8 @@ export default {
         TeamSelection,
         TeamStats,
         BuildingMarker,
-        BuildingDetailsModal
+        BuildingDetailsModal,
+        EasterEggMarker,
     },
     data() {
         return {
@@ -57,7 +66,9 @@ export default {
             mapZoom: null,
             teams: [],
             buildings: [],
-            selectedTeamId: null,
+            teamResources: [],
+            easterEggs: easterEggLocations,
+            selectedTeamId: cacheGet('selectedTeamId', null),
             selectedBuildingId: null,
             selectedBuilding: null,
         }
@@ -66,6 +77,11 @@ export default {
         visibleBuildings() {
             if (!this.selectedTeamId) return [];
             return this.buildings.filter(building => building.teamId === this.selectedTeamId);
+        },
+        selectedTeamResources() {
+            if (!this.selectedTeamId) return [];
+            const teamData = this.teamResources.find(t => t.teamId === this.selectedTeamId);
+            return teamData ? teamData.resources : [];
         },
         loadingMessage() {
             if (!this.imageLoaded) return 'Loading map...';
@@ -78,6 +94,7 @@ export default {
         this.mapZoom = useMapZoom();
         await this.loadTeams();
         await this.loadBuildings();
+        await this.loadResources();
     },
     methods: {
         async loadTeams() {
@@ -107,7 +124,6 @@ export default {
                 this.isLoadingBuildings = true;
                 const data = await apiService.getBuildings();
 
-                // Use the helper function from utils
                 this.buildings = parseBackendBuildings(data.teamsBuildings, buildingLocations);
 
                 console.log('Loaded buildings:', this.buildings);
@@ -118,14 +134,27 @@ export default {
                 this.isLoadingBuildings = false;
             }
         },
+        async loadResources() {
+            try {
+                const data = await apiService.getResources();
+                this.teamResources = data.teamResources;
+                console.log('Loaded resources:', this.teamResources);
+            } catch (error) {
+                console.error('Failed to load resources:', error);
+                this.teamResources = [];
+            }
+        },
         onImageLoad() {
             this.imageLoaded = true;
             this.$nextTick(() => {
                 this.mapZoom.initialize(this.$refs.mapScene);
             });
         },
-        handleTeamSelected(teamId) {
+        handleTeamSelected(teamId, isUserInteraction = false) {
             this.selectedTeamId = teamId;
+            if (isUserInteraction) {
+                cacheSet('selectedTeamId', teamId);
+            }
             this.selectedBuildingId = null;
             console.log('Selected team:', teamId);
         },
