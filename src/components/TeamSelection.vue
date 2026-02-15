@@ -48,14 +48,14 @@ export default {
     methods: {
         selectTeam(teamId) {
             this.selectedTeamId = teamId;
-            this.$emit('team-selected', teamId);
+            this.$emit('team-selected', teamId, true);
         },
         toggleCollapse() {
             this.isCollapsed = !this.isCollapsed;
         }
     },
     mounted() {
-        this.$emit('team-selected', this.selectedTeamId);
+        this.$emit('team-selected', this.selectedTeamId, false);
     }
 }
 </script>

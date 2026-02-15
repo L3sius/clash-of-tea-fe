@@ -26,41 +26,36 @@
 
             <!-- Tab Content -->
             <div class="tab-content">
+
                 <!-- Resources Tab -->
                 <div v-show="activeTab === 'resources'" class="content-section">
                     <div v-if="isLoadingResources" class="loading-state">
                         <div class="loading-spinner">⏳</div>
                         <p>Loading resources...</p>
                     </div>
-                    <div v-else-if="!sortedResources || sortedResources.length === 0" class="empty-state">
+                    <div v-else-if="!teamResources || teamResources.length === 0" class="empty-state">
                         <div class="empty-icon">📦</div>
                         <p>No resources data available</p>
                     </div>
-                    <div v-else class="resources-list">
-                        <div v-for="(resource, index) in sortedResources" :key="resource.source" class="resource-block"
-                            :class="{ dragging: draggedIndex === index }" draggable="true"
-                            @dragstart="handleDragStart(index, $event)" @dragend="handleDragEnd"
-                            @dragover.prevent="handleDragOver(index, $event)" @drop="handleDrop(index)">
-
-                            <div class="resource-header" @click="toggleResourceExpanded(resource.source)">
-                                <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
-                                <span class="resource-icon">🏰</span>
-                                <h3 class="resource-title">{{ formatBuildingName(resource.source) }}</h3>
-                                <span class="expand-arrow" :class="{ expanded: isResourceExpanded(resource.source) }">
-                                    ▼
-                                </span>
-                            </div>
-
-                            <transition name="expand">
-                                <div v-show="isResourceExpanded(resource.source)" class="tiers-grid">
-                                    <div v-for="tier in resource.tiers" :key="tier.tier" class="tier-item">
-                                        <span class="tier-label">Tier {{ tier.tier }}:</span>
-                                        <span class="tier-value">{{ tier.quantity }}</span>
-                                    </div>
-                                </div>
-                            </transition>
+                    <template v-else>
+                        <!-- Building Selector -->
+                        <div class="building-selector">
+                            <button v-for="resource in teamResources" :key="resource.source" class="building-pill"
+                                :class="{ active: selectedSource === resource.source }"
+                                @click="selectedSource = resource.source">
+                                {{ resource.source }}
+                            </button>
                         </div>
-                    </div>
+
+                        <!-- Inventory Grid -->
+                        <div v-if="selectedResource" class="inventory-grid">
+                            <div v-for="tier in selectedResource.tiers" :key="tier.tier" class="tier-card"
+                                :class="{ empty: tier.quantity === 0 }">
+                                <span class="tier-card__label">Tier {{ tier.tier }}</span>
+                                <span class="tier-card__value">{{ tier.quantity }}</span>
+                            </div>
+                        </div>
+                    </template>
                 </div>
 
                 <!-- Live Feed Tab -->
@@ -106,6 +101,7 @@
 
 <script>
 import apiService from '@/services/apiService';
+import { cacheGet, cacheSet } from '@/utils/useCache';
 
 export default {
     name: 'TeamStats',
@@ -122,7 +118,7 @@ export default {
     data() {
         return {
             isCollapsed: false,
-            activeTab: 'resources',
+            activeTab: cacheGet('statsActiveTab', 'resources'),
             isLoadingResources: false,
             tabs: [
                 { id: 'resources', label: 'Resources', icon: '💎' },
@@ -130,9 +126,7 @@ export default {
                 { id: 'latest', label: 'Latest', icon: '📜' }
             ],
             teamResources: [],
-            resourceOrder: [],
-            expandedResources: [],
-            draggedIndex: null,
+            selectedSource: cacheGet('statsSelectedSource', null),
             liveFeed: [],
             latestActivity: []
         }
@@ -143,35 +137,9 @@ export default {
             const team = this.teams.find(t => t.id === this.selectedTeamId);
             return team ? team.name : 'Unknown Team';
         },
-        sortedResources() {
-            if (!this.teamResources || this.teamResources.length === 0) return [];
-
-            // If no custom order exists, return original order
-            if (this.resourceOrder.length === 0) {
-                return this.teamResources;
-            }
-
-            // Sort based on custom order
-            const sorted = [...this.teamResources].sort((a, b) => {
-                const indexA = this.resourceOrder.indexOf(a.source);
-                const indexB = this.resourceOrder.indexOf(b.source);
-
-                // If both are in the order array, sort by their position
-                if (indexA !== -1 && indexB !== -1) {
-                    return indexA - indexB;
-                }
-
-                // If only A is in order, put it first
-                if (indexA !== -1) return -1;
-
-                // If only B is in order, put it first
-                if (indexB !== -1) return 1;
-
-                // If neither is in order, maintain original order
-                return 0;
-            });
-
-            return sorted;
+        selectedResource() {
+            if (!this.selectedSource) return null;
+            return this.teamResources.find(r => r.source === this.selectedSource) || null;
         }
     },
     watch: {
@@ -182,16 +150,17 @@ export default {
                     this.loadTeamData();
                 }
             }
+        },
+        activeTab(val) {
+            cacheSet('statsActiveTab', val);
+        },
+        selectedSource(val) {
+            if (val) cacheSet('statsSelectedSource', val);
         }
     },
     methods: {
         toggleCollapse() {
             this.isCollapsed = !this.isCollapsed;
-        },
-        formatBuildingName(name) {
-            return name.split('_').map(word =>
-                word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ');
         },
         getActivityIcon(type) {
             const icons = {
@@ -204,48 +173,6 @@ export default {
             };
             return icons[type] || '⚡';
         },
-        toggleResourceExpanded(source) {
-            const index = this.expandedResources.indexOf(source);
-            if (index === -1) {
-                this.expandedResources.push(source);
-            } else {
-                this.expandedResources.splice(index, 1);
-            }
-        },
-        isResourceExpanded(source) {
-            return this.expandedResources.includes(source);
-        },
-        handleDragStart(index, event) {
-            this.draggedIndex = index;
-            event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('text/html', event.target.innerHTML);
-            event.target.style.opacity = '0.5';
-        },
-        handleDragEnd(event) {
-            event.target.style.opacity = '';
-            this.draggedIndex = null;
-        },
-        handleDragOver(index, event) {
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'move';
-        },
-        handleDrop(dropIndex) {
-            if (this.draggedIndex === null || this.draggedIndex === dropIndex) return;
-
-            const resources = [...this.sortedResources];
-            const draggedResource = resources[this.draggedIndex];
-
-            // Remove from old position
-            resources.splice(this.draggedIndex, 1);
-
-            // Insert at new position
-            resources.splice(dropIndex, 0, draggedResource);
-
-            // Update the order array
-            this.resourceOrder = resources.map(r => r.source);
-
-            console.log('New resource order:', this.resourceOrder);
-        },
         async loadTeamData() {
             if (!this.selectedTeamId) return;
 
@@ -253,34 +180,30 @@ export default {
                 this.isLoadingResources = true;
                 const data = await apiService.getTeamsResources();
 
-                // Find the resources for the selected team
                 const teamData = data.teamResources.find(tr => tr.teamId === this.selectedTeamId);
 
                 if (teamData && teamData.resources) {
                     this.teamResources = teamData.resources;
-
-                    // Initialize resource order if empty
-                    if (this.resourceOrder.length === 0) {
-                        this.resourceOrder = this.teamResources.map(r => r.source);
-                    }
+                    // Restore cached source if it exists in this team's resources,
+                    // otherwise fall back to the first available building
+                    const cachedSource = cacheGet('statsSelectedSource', null);
+                    const isValid = cachedSource && this.teamResources.some(r => r.source === cachedSource);
+                    this.selectedSource = isValid ? cachedSource : (this.teamResources[0]?.source || null);
                 } else {
                     this.teamResources = [];
-                    this.resourceOrder = [];
+                    this.selectedSource = null;
                 }
-
-                // Clear expanded resources when switching teams
-                this.expandedResources = [];
 
                 console.log('Loaded resources for team ID:', this.selectedTeamId, this.teamResources);
             } catch (error) {
                 console.error('Failed to load team resources:', error);
                 this.teamResources = [];
-                this.resourceOrder = [];
+                this.selectedSource = null;
             } finally {
                 this.isLoadingResources = false;
             }
 
-            // Mock data for live feed (replace with actual API call later)
+            // Mock data for live feed
             this.liveFeed = [
                 { id: 1, player: 'Player1', message: 'Killed Giant Mole', type: 'boss', time: '2s ago' },
                 { id: 2, player: 'Player2', message: 'Opened Elite Clue worth 3.2M', type: 'clue', time: '5s ago' },
@@ -295,16 +218,12 @@ export default {
                 { id: 3, player: 'Player7', message: 'Killed Zulrah in 45 seconds', type: 'boss', time: '40s ago' },
             ];
 
-            // Simulate live feed updates
             this.startLiveFeedUpdates();
         },
         startLiveFeedUpdates() {
-            // Clear existing interval if any
             if (this.feedInterval) {
                 clearInterval(this.feedInterval);
             }
-
-            // Update live feed every 5 seconds
             this.feedInterval = setInterval(() => {
                 const newActivity = {
                     id: Date.now(),
@@ -314,9 +233,7 @@ export default {
                     time: 'Just now'
                 };
                 this.liveFeed.unshift(newActivity);
-                if (this.liveFeed.length > 20) {
-                    this.liveFeed.pop();
-                }
+                if (this.liveFeed.length > 20) this.liveFeed.pop();
             }, 5000);
         }
     },
