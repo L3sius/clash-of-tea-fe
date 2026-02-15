@@ -37,20 +37,28 @@
                 <div class="modal-section">
                     <h3 class="section-title">⚡ Upgrade Paths</h3>
                     <div v-if="building.upgradable && building.upgradeOptions && building.upgradeOptions.length > 0">
-                        <div v-for="option in building.upgradeOptions" :key="option.optionId" class="upgrade-option">
+                        <div v-for="option in building.upgradeOptions" :key="option.optionId" class="upgrade-option"
+                            :class="{ 'upgrade-option--fulfilled': isOptionFulfilled(option) }">
                             <div class="option-header">
                                 <span class="option-label">Option {{ option.optionId }}</span>
+                                <span v-if="isOptionFulfilled(option)" class="fulfilled-badge">
+                                    ✦ Ready to upgrade
+                                </span>
                             </div>
                             <div class="requirements-grid">
                                 <div v-for="req in option.requirements" :key="`${req.name}-${req.tier}`"
-                                    class="requirement-item">
+                                    class="requirement-item"
+                                    :class="{ 'requirement-item--fulfilled': isReqFulfilled(req) }">
                                     <div class="requirement-header">
                                         <span class="building-icon">🏰</span>
                                         <span class="requirement-building">{{ req.name }}</span>
                                     </div>
                                     <div class="requirement-details">
                                         <span class="tier-badge" :class="`tier-${req.tier}`">Tier {{ req.tier }}</span>
-                                        <span class="quantity">{{ req.quantity }}x</span>
+                                        <span class="quantity"
+                                            :class="isReqFulfilled(req) ? 'quantity--met' : 'quantity--unmet'">
+                                            {{ getOwnedQty(req) }}/{{ req.quantity }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -74,11 +82,30 @@ export default {
         building: {
             type: Object,
             default: null
+        },
+        teamResources: {
+            type: Array,
+            default: () => []
         }
     },
     methods: {
         close() {
             this.$emit('close');
+        },
+        // Look up how many of a given resource (by source name + tier) the team owns
+        getOwnedQty(req) {
+            const source = this.teamResources.find(
+                r => r.source.toLowerCase() === req.name.toLowerCase()
+            );
+            if (!source) return 0;
+            const tierEntry = source.tiers.find(t => t.tier === req.tier);
+            return tierEntry ? tierEntry.quantity : 0;
+        },
+        isReqFulfilled(req) {
+            return this.getOwnedQty(req) >= req.quantity;
+        },
+        isOptionFulfilled(option) {
+            return option.requirements.every(req => this.isReqFulfilled(req));
         }
     }
 }
@@ -251,20 +278,44 @@ export default {
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .upgrade-option:last-child {
     margin-bottom: 0;
 }
 
+/* Fulfilled upgrade option — lit up */
+.upgrade-option--fulfilled {
+    border-color: rgba(74, 222, 128, 0.7);
+    background: rgba(20, 40, 20, 0.5);
+    box-shadow:
+        0 0 16px rgba(74, 222, 128, 0.15),
+        inset 0 1px 0 rgba(74, 222, 128, 0.1);
+}
+
 .option-header {
     margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .option-label {
     color: #f4e4c1;
     font-size: 1.1rem;
     font-weight: 600;
+}
+
+.fulfilled-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.12);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    border-radius: 20px;
+    padding: 0.15rem 0.65rem;
+    letter-spacing: 0.3px;
 }
 
 .requirements-grid {
@@ -281,6 +332,13 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+/* Fulfilled individual requirement */
+.requirement-item--fulfilled {
+    border-left-color: #4ade80;
+    background: rgba(74, 222, 128, 0.06);
 }
 
 .requirement-header {
@@ -366,10 +424,20 @@ export default {
     border-color: #ffd700;
 }
 
+/* Quantity x/y display */
 .quantity {
-    color: #d4af37;
     font-size: 1rem;
     font-weight: 700;
+    min-width: 2.5rem;
+    text-align: right;
+}
+
+.quantity--met {
+    color: #4ade80;
+}
+
+.quantity--unmet {
+    color: #d4af37;
 }
 
 /* Empty States */
