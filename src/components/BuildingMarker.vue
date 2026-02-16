@@ -29,6 +29,7 @@ export default {
         },
         handleImageError(e) {
             console.log("Image not found:", this.building.name);
+            console.log("test:", this.building.icon);
         },
         formatBuildingName(name) {
             return name.charAt(0).toUpperCase() + name.slice(1);
@@ -43,11 +44,8 @@ export default {
     transform: translate(-50%, -50%);
     cursor: pointer;
     z-index: 10;
-    /* Use viewport-based sizing so buildings scale with the map */
     width: 8.138vw;
-    /* 250px at ~3072px wide viewport */
     height: 8.893vw;
-    /* 273px at ~3072px wide viewport */
     max-width: 250px;
     max-height: 273px;
     transition: all 0.3s ease;
@@ -70,13 +68,13 @@ export default {
     user-select: none;
 }
 
-/* Custom Tooltip */
+/* Custom Tooltip — appears below the building */
 .building-tooltip {
     position: absolute;
-    bottom: 100%;
+    top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    margin-bottom: 8px;
+    margin-top: 8px;
     padding: 8px 12px;
     background: linear-gradient(135deg, rgba(40, 30, 20, 0.98), rgba(30, 20, 15, 0.98));
     border: 2px solid #8b7355;
@@ -96,22 +94,22 @@ export default {
 
 .building-marker:hover .building-tooltip {
     opacity: 1;
-    transform: translateX(-50%) translateY(-4px);
+    transform: translateX(-50%) translateY(4px);
 }
 
-/* Tooltip arrow */
+/* Tooltip arrow — points up toward the building */
 .building-tooltip::after {
     content: '';
     position: absolute;
-    top: 100%;
+    bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-top: 8px solid #8b7355;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    border-bottom: 8px solid #8b7355;
+    filter: drop-shadow(0 -2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .tooltip-name {
@@ -148,7 +146,7 @@ export default {
 
     .building-tooltip {
         padding: 6px 10px;
-        margin-bottom: 6px;
+        margin-top: 6px;
     }
 
     .tooltip-name {
@@ -162,7 +160,7 @@ export default {
     .building-tooltip::after {
         border-left-width: 6px;
         border-right-width: 6px;
-        border-top-width: 6px;
+        border-bottom-width: 6px;
     }
 }
 </style>

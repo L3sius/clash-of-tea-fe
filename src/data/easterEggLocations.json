@@ -1,13 +1,18 @@
 [
-  { "description": "A very pregnant lake!", "x": 66, "y": 25, "image": "pregnant_h.png" },
+  { "description": "A pregnant lake!", "x": 66, "y": 25, "image": "pregnant_h.png" },
   { "description": "Here lies Pissweasels", "x": 48, "y": 73, "image": "pissweasels.png" },
   { "description": "Meet the Spoons: Cen Sational, Ivae, Cho, Terroristen, Jageris & Iron Jecr", "x": 29, "y": 8, "image": "" },
   { "description": "#bbw", "x": 47, "y": 51, "image": "bbw.png" },
-  { "description": "Moxi looking for Heightsy", "x": 55, "y": 12, "image": "moxi.png" },
-  { "description": "Chinese mole was here", "x": 64, "y": 19, "image": "" },
-  { "description": "Get egged!", "x": 52, "y": 46, "image": "" },
+  { "description": "Moxi looking for Heightsy", "x": 54.5, "y": 12, "image": "moxi.png" },
+  { "description": "Chinese mole was here", "x": 64, "y": 19, "image": "chinese_mole.png" },
+  { "description": "Get egged!", "x": 51.5, "y": 46.5, "image": "chris_egg.png" },
   { "description": "Joakim, here lies your voidwaker hilt!", "x": 91, "y": 33, "image": "hilt.png" },
   { "description": "Virtus top looking for an owner!", "x": 70, "y": 87, "image": "kazlvirtus.png" },
-  { "description": "#bbz", "x": 13, "y": 30, "image": "bbz.png" },
-  { "description": "I'm eating cabbages!", "x": 29, "y": 85, "image": "" }
+  { "description": "#bbz", "x": 12.5, "y": 31.5, "image": "bbz.png" },
+  { "description": "I'm eating cabbages!", "x": 29, "y": 85, "image": "eating_cabbages.png" },
+  { "description": "Chickens vs Tea", "x": 40.5, "y": 42, "image": "chickens_vs_tea.png" },
+  { "description": "Can I tag everyone? @Sugar @Shlaters @Acid @Cho", "x": 50, "y": 55, "image": "everyone.png" },
+  { "description": "I leave all loot!", "x": 61, "y": 77, "image": "acid_pool.png" },
+  { "description": "Meet the Retirement crew: Mc Red, Googs & Jaytee", "x": 88, "y": 48, "image": "" },
+  { "description": "The 'CG 6:20' Bridge", "x": 29, "y": 26, "image": "brim.png" }
 ]
