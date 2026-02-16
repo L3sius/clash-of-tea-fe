@@ -28,7 +28,7 @@
                             {{ source }}
                         </div>
                     </div>
-                    <p v-else class="empty-message">No specific sources (Town Hall)</p>
+                    <p v-else class="empty-message">No specific sources</p>
                 </div>
 
                 <div class="modal-divider"></div>

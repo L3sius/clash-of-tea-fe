@@ -136,7 +136,7 @@ export default {
         },
         async loadResources() {
             try {
-                const data = await apiService.getResources();
+                const data = await apiService.getTeamsResources();
                 this.teamResources = data.teamResources;
                 console.log('Loaded resources:', this.teamResources);
             } catch (error) {
