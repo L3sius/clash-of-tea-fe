@@ -1,2 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Girassol');
 @import url('https://fonts.googleapis.com/css2?family=Inter');
+
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
