@@ -4,13 +4,8 @@ class ApiService {
     async getTeams() {
         try {
             const response = await fetch(`${API_BASE_URL}/getTeams`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
         } catch (error) {
             console.error('Error fetching teams:', error);
             throw error;
@@ -20,29 +15,8 @@ class ApiService {
     async getBuildings() {
         try {
             const response = await fetch(`${API_BASE_URL}/getBuildings`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error fetching buildings:', error);
-            throw error;
-        }
-    }
-
-    async getBuildings() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/getBuildings`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
         } catch (error) {
             console.error('Error fetching buildings:', error);
             throw error;
@@ -52,13 +26,8 @@ class ApiService {
     async getTeamsResources() {
         try {
             const response = await fetch(`${API_BASE_URL}/getTeamsResources`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
         } catch (error) {
             console.error('Error fetching teams resources:', error);
             throw error;
@@ -68,17 +37,22 @@ class ApiService {
     async getPlayerStats() {
         try {
             const response = await fetch(`${API_BASE_URL}/getPlayerStats`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
         } catch (error) {
             console.error('Error fetching player stats:', error);
             throw error;
         }
+    }
+
+    // Returns an EventSource for the live action stream.
+    // Caller is responsible for closing it (eventSource.close()).
+    getActionStream() {
+        return new EventSource(`${API_BASE_URL}/getActionStream`);
+    }
+
+    getBuildingUpgradeStream() {
+        return new EventSource(`${API_BASE_URL}/getBuildingUpgradeStream`);
     }
 }
 
