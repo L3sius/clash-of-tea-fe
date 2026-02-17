@@ -26,7 +26,6 @@
 </template>
 
 <script>
-
 export default {
     name: 'TeamSelection',
     props: {
@@ -37,12 +36,17 @@ export default {
         initialTeamId: {
             type: Number,
             default: 1
+        },
+        startCollapsed: {
+            type: Boolean,
+            default: null
         }
     },
     data() {
+        const isMobile = window.innerWidth <= 768;
         return {
             selectedTeamId: this.initialTeamId,
-            isCollapsed: false
+            isCollapsed: this.startCollapsed !== null ? this.startCollapsed : isMobile
         }
     },
     methods: {

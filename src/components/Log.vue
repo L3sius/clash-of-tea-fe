@@ -30,7 +30,7 @@
                                     <span class="player-marker">▸</span>
                                     <span class="player-name">{{ playerData.main }}</span>
                                     <span v-if="playerData.alts.length > 0" class="alt-badge">{{ playerData.alts.length
-                                    }}</span>
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -127,30 +127,19 @@
                 </div>
                 <div v-else class="building-mvp-scroll">
                     <div v-for="building in buildingMVPs" :key="building.name" class="building-mvp-item">
-                        <div class="building-info">
-                            <div class="building-icon">🏰</div>
-                            <div class="building-name">{{ formatBuildingName(building.name) }}</div>
-                        </div>
-                        <div v-if="building.mvp" class="mvp-info">
-                            <div class="mvp-player">
-                                <span class="crown">👑</span>
-                                <span class="player-name">{{ building.mvp.playerName }}</span>
-                            </div>
-                            <div class="mvp-team" :style="{ color: getTeamColor(building.mvp.teamId) }">
-                                {{ building.mvp.teamName }}
-                            </div>
-                            <div class="mvp-value">
-                                <template v-if="buildingFilter === 'value'">
-                                    {{ formatValue(building.mvp.value) }}
-                                </template>
-                                <template v-else>
-                                    {{ building.mvp.drops }} drops
-                                </template>
-                            </div>
-                        </div>
-                        <div v-else class="no-mvp">
-                            No activity yet
-                        </div>
+                        <span class="building-name">{{ formatBuildingName(building.name) }}</span>
+
+                        <template v-if="building.mvp">
+                            <span class="player-name">{{ building.mvp.playerName }}</span>
+                            <span class="mvp-team" :style="{ color: getTeamColor(building.mvp.teamId) }">{{
+                                building.mvp.teamName }}</span>
+                            <span class="mvp-value">
+                                <template v-if="buildingFilter === 'value'">{{ formatValue(building.mvp.value)
+                                }}</template>
+                                <template v-else>{{ building.mvp.drops }} drops</template>
+                            </span>
+                        </template>
+                        <span v-else class="no-mvp">No activity yet</span>
                     </div>
                 </div>
             </div>

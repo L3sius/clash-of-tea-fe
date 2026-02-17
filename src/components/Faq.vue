@@ -29,7 +29,7 @@
                         <h2 class="chapter-title">Mandatory Preparations</h2>
 
                         <div class="content-block">
-                            <h3 class="block-title">1. Import Dink Settings</h3>
+                            <h3 class="block-title">Import Dink Settings</h3>
                             <ul class="instruction-list">
                                 <li>Install <em>Dink</em> from the Plugin Hub</li>
                                 <li>Open <em>Dink Settings → Advanced</em></li>
@@ -45,19 +45,6 @@
                             </ul>
                             <p class="note-text">⚠ Manually changing Dink settings may cause tasks to be tracked
                                 incorrectly.</p>
-                        </div>
-
-                        <div class="content-block">
-                            <h3 class="block-title">2. Enable Combat Achievement Tasks</h3>
-                            <p>In OSRS settings, turn on <em>Combat Achievement Tasks and allow repeat completion</em>.
-                            </p>
-                            <p class="note-text">⚠ Required for dink to resend combat achievement completions.</p>
-                        </div>
-
-                        <div class="content-block">
-                            <h3 class="block-title">3. Enable Clan Chat</h3>
-                            <p>Make sure clan chat is enabled.</p>
-                            <p class="note-text">⚠ Pet related tasks might not count if clan chat is turned off.</p>
                         </div>
                     </div>
 
@@ -406,11 +393,6 @@
                                 </ul>
                             </div>
                         </div>
-
-                        <div class="sources-note">
-                            <p>💡 <strong>Tip:</strong> Focus on buildings where your team has the most experience to
-                                maximize efficiency!</p>
-                        </div>
                     </div>
 
                     <!-- Support -->
@@ -468,7 +450,7 @@
                             <div class="faq-card">
                                 <div class="faq-q">❓ How to check building level?</div>
                                 <div class="faq-a">Hover over the building or click on it to see its current level and
-                                    offered bonuses.</div>
+                                    required resources for future upgrade.</div>
                             </div>
 
                             <div class="faq-card">

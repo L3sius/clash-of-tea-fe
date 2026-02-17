@@ -9,7 +9,7 @@ export function getBuildingImagePath(buildingName, buildingLevel) {
   } else if (buildingLevel >= 7 && buildingLevel <= 9) {
     levelTier = 'max_level';
   } else {
-    levelTier = 'early_level'; // fallback for level 0
+    levelTier = 'start'; // fallback for level 0
   }
   
   return `/images/buildings/${normalizedName}/${normalizedName}_${levelTier}.png`;

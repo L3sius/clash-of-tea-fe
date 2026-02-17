@@ -7,7 +7,6 @@
     transition: all 0.3s ease;
 }
 
-/* Collapsed State - Hamburger Button */
 .legend-container.collapsed {
     width: auto;
 }
@@ -54,7 +53,6 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* Expanded State - Full Panel */
 .legend-panel {
     width: 220px;
     background: linear-gradient(135deg, rgba(40, 30, 20, 0.95), rgba(30, 20, 15, 0.98));
@@ -216,16 +214,19 @@
     user-select: none;
 }
 
-/* Responsive design */
+/* ── Mobile ── */
 @media (max-width: 768px) {
     .legend-container {
-        bottom: 1rem;
-        right: 1rem;
+        bottom: 0.75rem;
+        right: 0.75rem;
     }
 
     .legend-panel {
         width: 180px;
         padding: 0.75rem;
+        /* Cap height so it doesn't overflow on small screens */
+        max-height: 60dvh;
+        overflow-y: auto;
     }
 
     .legend-title {
@@ -233,8 +234,10 @@
     }
 
     .team-item {
-        padding: 0.5rem;
+        padding: 0.6rem 0.5rem;
         gap: 0.5rem;
+        /* Bigger tap target feel */
+        min-height: 44px;
     }
 
     .team-name {
@@ -247,20 +250,26 @@
     }
 
     .collapse-btn {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
         font-size: 0.9rem;
+        /* Bigger tap target */
+        min-width: 44px;
+        min-height: 44px;
     }
 
     .expand-btn {
-        padding: 0.6rem 0.8rem;
+        padding: 0.7rem 0.9rem;
+        /* Bigger tap target */
+        min-width: 44px;
+        min-height: 44px;
     }
 
     .hamburger-icon {
-        font-size: 1.25rem;
+        font-size: 1.4rem;
     }
 
     .expand-label {
-        font-size: 0.7rem;
+        display: none;
     }
 }
