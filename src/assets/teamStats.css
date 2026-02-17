@@ -94,6 +94,53 @@
     letter-spacing: 1.5px;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-btn,
+.refresh-btn-compact {
+    width: 32px;
+    height: 32px;
+    background: rgba(20, 15, 10, 0.4);
+    border: 2px solid rgba(139, 115, 85, 0.3);
+    border-radius: 4px;
+    color: #c9b896;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-btn:hover {
+    background: rgba(40, 30, 20, 0.6);
+    border-color: #d4af37;
+    color: #f4e4c1;
+}
+
+.refresh-btn-compact:hover:not(:disabled) {
+    background: rgba(40, 30, 20, 0.6);
+    border-color: #d4af37;
+    color: #f4e4c1;
+}
+
+.refresh-btn-compact:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.refresh-btn-compact.refreshing .refresh-icon {
+    animation: spin 1s linear infinite;
+}
+
+.refresh-icon {
+    font-size: 1.1rem;
+}
+
 .collapse-btn {
     width: 32px;
     height: 32px;
@@ -271,6 +318,7 @@
     color: #a89070;
     font-size: 0.75rem;
     letter-spacing: 0.3px;
+    font-weight: bold;
 }
 
 /* Tier label colors — match FAQ tier badge colors */
@@ -311,10 +359,10 @@
 }
 
 .tier-card__value {
-    color: #d4af37;
+    color: white;
     font-size: 1.3rem;
     font-weight: bold;
-    text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+    /* text-shadow: 0 0 8px rgba(212, 175, 55, 0.4); */
 }
 
 .tier-card.empty .tier-card__value {
