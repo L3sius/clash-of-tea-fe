@@ -15,7 +15,17 @@
             <!-- Header -->
             <div class="panel-header">
                 <h2 class="panel-title">{{ selectedTeamDisplayName }}</h2>
-                <button class="collapse-btn" @click="toggleCollapse" title="Collapse">✕</button>
+                <div class="header-actions">
+                    <!-- Refresh controls - only shown in Resources tab -->
+                    <template v-if="activeTab === 'resources'">
+                        <button class="refresh-btn-compact" @mouseenter="showRefreshInfo" @mouseleave="hideTooltip"
+                            :class="{ 'refreshing': isRefreshingResources }" @click="refreshResources"
+                            :disabled="isRefreshingResources">
+                            <span class="refresh-icon">{{ isRefreshingResources ? '⏳' : '⟲' }}</span>
+                        </button>
+                    </template>
+                    <button class="collapse-btn" @click="toggleCollapse" title="Collapse">✕</button>
+                </div>
             </div>
             <div class="header-ornament"></div>
 
@@ -33,7 +43,7 @@
 
                 <!-- Resources Tab -->
                 <div v-show="activeTab === 'resources'" class="content-section">
-                    <div v-if="isLoadingResources" class="loading-state">
+                    <div v-if="isLoadingResources && !teamResources.length" class="loading-state">
                         <div class="loading-spinner">⏳</div>
                         <p>Loading resources...</p>
                     </div>
@@ -71,7 +81,7 @@
                             @click="feedTeamFilter = null">All</button>
                         <button v-for="team in teams" :key="team.id" class="filter-pill"
                             :class="{ active: feedTeamFilter === team.name }" @click="feedTeamFilter = team.name">{{
-                            team.name
+                                team.name
                             }}</button>
                     </div>
 
@@ -180,6 +190,9 @@ export default {
             upgradeTeamFilter: null,
             upgradeEventSource: null,
             tooltip: { visible: false, text: '', x: 0, y: 0 },
+            lastResourceUpdate: null,
+            isRefreshingResources: false,
+            resourceAutoRefreshInterval: null,
         }
     },
     computed: {
@@ -230,22 +243,72 @@ export default {
                 y: rect.top,
             };
         },
+        showRefreshInfo(event) {
+            const lastUpdateText = this.lastResourceUpdate
+                ? `Last updated: ${this.formatTimeAgo(this.lastResourceUpdate)}`
+                : 'Not yet loaded';
+            const text = `Resources auto-update every minute\n${lastUpdateText}`;
+            this.showTooltip(event, text);
+        },
         hideTooltip() {
             this.tooltip.visible = false;
         },
         tierLabel(tier) {
             const ranges = {
-                1: '1K – 10K GP',
-                2: '10K – 25K GP',
-                3: '25K – 50K GP',
-                4: '50K – 100K GP',
-                5: '100K – 250K GP',
-                6: '250K – 1M GP',
-                7: '1M – 10M GP',
-                8: '10M – 50M GP',
+                1: '1K - 10K GP',
+                2: '10K - 25K GP',
+                3: '25K - 50K GP',
+                4: '50K - 100K GP',
+                5: '100K - 250K GP',
+                6: '250K - 1M GP',
+                7: '1M - 10M GP',
+                8: '10M - 50M GP',
                 9: '50M+ GP',
             };
             return ranges[tier] ?? `Tier ${tier}`;
+        },
+        formatTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = Math.floor((now - timestamp) / 1000);
+            if (diff < 10) return 'just now';
+            if (diff < 60) return `${diff}s ago`;
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            return `${Math.floor(diff / 3600)}h ago`;
+        },
+        async refreshResources() {
+            if (this.isRefreshingResources || !this.selectedTeamId) return;
+
+            this.isRefreshingResources = true;
+            try {
+                const data = await apiService.getTeamsResources();
+                const teamData = data.teamResources.find(tr => tr.teamId === this.selectedTeamId);
+
+                if (teamData && teamData.resources) {
+                    this.teamResources = teamData.resources;
+                    const cachedSource = cacheGet('statsSelectedSource', null);
+                    const isValid = cachedSource && this.teamResources.some(r => r.source === cachedSource);
+                    this.selectedSource = isValid ? cachedSource : (this.teamResources[0]?.source || null);
+                } else {
+                    this.teamResources = [];
+                    this.selectedSource = null;
+                }
+
+                this.lastResourceUpdate = Date.now();
+            } catch (error) {
+                console.error('Failed to refresh resources:', error);
+            } finally {
+                this.isRefreshingResources = false;
+            }
+        },
+        startResourceAutoRefresh() {
+            // Clear any existing interval
+            if (this.resourceAutoRefreshInterval) {
+                clearInterval(this.resourceAutoRefreshInterval);
+            }
+            // Refresh every 60 seconds
+            this.resourceAutoRefreshInterval = setInterval(() => {
+                this.refreshResources();
+            }, 60000);
         },
         // Parse "[Player (account)] [Source (detail)] [Tier (xN)]" into structured fields
         parseMessage(raw) {
@@ -379,33 +442,16 @@ export default {
         async loadTeamData() {
             if (!this.selectedTeamId) return;
 
+            this.isLoadingResources = true;
             try {
-                this.isLoadingResources = true;
-                const data = await apiService.getTeamsResources();
-
-                const teamData = data.teamResources.find(tr => tr.teamId === this.selectedTeamId);
-
-                if (teamData && teamData.resources) {
-                    this.teamResources = teamData.resources;
-                    const cachedSource = cacheGet('statsSelectedSource', null);
-                    const isValid = cachedSource && this.teamResources.some(r => r.source === cachedSource);
-                    this.selectedSource = isValid ? cachedSource : (this.teamResources[0]?.source || null);
-                } else {
-                    this.teamResources = [];
-                    this.selectedSource = null;
-                }
-
-                console.log('Loaded resources for team ID:', this.selectedTeamId, this.teamResources);
-            } catch (error) {
-                console.error('Failed to load team resources:', error);
-                this.teamResources = [];
-                this.selectedSource = null;
+                await this.refreshResources();
             } finally {
                 this.isLoadingResources = false;
             }
 
             this.connectStream();
             this.connectUpgradeStream();
+            this.startResourceAutoRefresh();
         },
     },
     beforeUnmount() {
@@ -413,6 +459,7 @@ export default {
         if (this.upgradeEventSource) this.upgradeEventSource.close();
         if (this.timeUpdateInterval) clearInterval(this.timeUpdateInterval);
         if (this.upgradeTimeInterval) clearInterval(this.upgradeTimeInterval);
+        if (this.resourceAutoRefreshInterval) clearInterval(this.resourceAutoRefreshInterval);
     }
 }
 </script>
@@ -427,11 +474,12 @@ export default {
     background: linear-gradient(135deg, rgba(40, 30, 20, 0.98), rgba(30, 20, 15, 0.98));
     border: 1px solid #8b7355;
     border-radius: 4px;
-    padding: 0.25rem 0.6rem;
+    padding: 0.4rem 0.7rem;
     color: #f4e4c1;
     font-family: 'Georgia', 'Times New Roman', serif;
     font-size: 0.75rem;
-    white-space: nowrap;
+    white-space: pre-line;
+    text-align: center;
     pointer-events: none;
     z-index: 99999;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
