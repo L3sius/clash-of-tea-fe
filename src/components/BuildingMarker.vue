@@ -129,8 +129,8 @@ export default {
 
 @media (max-width: 1024px) {
     .building-marker {
-        width: 6vw;
-        height: 6.55vw;
+        width: 8vw;
+        height: 9.55vw;
         max-width: 150px;
         max-height: 163.8px;
     }
@@ -138,10 +138,10 @@ export default {
 
 @media (max-width: 768px) {
     .building-marker {
-        width: 10vw;
-        height: 10.92vw;
-        max-width: 125px;
-        max-height: 136.5px;
+        width: 29vw;
+        height: 34.3vw;
+        max-width: 200px;
+        max-height: 216px;
     }
 
     .building-tooltip {

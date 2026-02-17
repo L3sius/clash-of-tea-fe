@@ -598,11 +598,6 @@
 }
 
 @media (max-width: 480px) {
-    .stats-panel {
-        width: calc(100vw - 1rem);
-        max-width: none;
-    }
-
     .expand-label {
         display: none;
     }

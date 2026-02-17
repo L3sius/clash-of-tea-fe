@@ -70,7 +70,7 @@
                             @click="feedTeamFilter = null">All</button>
                         <button v-for="team in teams" :key="team.id" class="filter-pill"
                             :class="{ active: feedTeamFilter === team.name }" @click="feedTeamFilter = team.name">{{
-                                team.name
+                            team.name
                             }}</button>
                     </div>
 
@@ -124,8 +124,8 @@
                     <div v-else class="activity-feed">
                         <div v-for="entry in filteredUpgrades" :key="entry.id" class="feed-item upgrade-item">
                             <div class="feed-line">
+                                <span class="upgrade-icon">🏰</span>
                                 <span class="upgrade-building">{{ entry.buildingName }}</span>
-                                <span class="upgrade-level">Lvl {{ entry.newLevel - 1 }}</span>
                                 <span class="upgrade-arrow">→</span>
                                 <span class="upgrade-level">Lvl {{ entry.newLevel }}</span>
                                 <span class="upgrade-team">{{ entry.teamName }}</span>
@@ -153,17 +153,22 @@ export default {
         teams: {
             type: Array,
             required: true
+        },
+        startCollapsed: {
+            type: Boolean,
+            default: null
         }
     },
     data() {
+        const isMobile = window.innerWidth <= 768;
         return {
-            isCollapsed: false,
+            isCollapsed: this.startCollapsed !== null ? this.startCollapsed : isMobile,
             activeTab: cacheGet('statsActiveTab', 'resources'),
             isLoadingResources: false,
             tabs: [
                 { id: 'resources', label: 'Resources', icon: '💎' },
                 { id: 'live', label: 'Live Feed', icon: '⚡' },
-                { id: 'latest', label: 'Latest Activity', icon: '📜' }
+                { id: 'latest', label: 'Latest', icon: '📜' }
             ],
             teamResources: [],
             selectedSource: cacheGet('statsSelectedSource', null),

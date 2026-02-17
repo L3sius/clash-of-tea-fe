@@ -5,8 +5,8 @@
             <div class="loading-text">{{ loadingMessage }}</div>
         </div>
 
-        <!-- Map wrapper - with zoom functionality -->
-        <div class="map-wrapper">
+        <!-- Map wrapper - horizontal scroll on mobile, zoom on desktop -->
+        <div class="map-wrapper" ref="mapWrapper">
             <div class="map-scene" ref="mapScene">
                 <img :src="mapImageUrl" alt="Map" class="map-image" @load="onImageLoad" draggable="false" />
 
@@ -16,11 +16,17 @@
                         :style="{ left: building.x + '%', top: building.y + '%' }"
                         @click="handleBuildingClick(building)" />
 
-                    <!-- Easter egg markers - always rendered, invisible hover zones -->
+                    <!-- Easter egg markers -->
                     <EasterEggMarker v-for="(egg, index) in easterEggs" :key="'egg-' + index" :egg="egg"
                         :style="{ left: egg.x + '%', top: egg.y + '%' }" />
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile scroll hint -->
+        <div v-if="isMobile && imageLoaded && showScrollHint" class="mobile-scroll-hint"
+            :class="{ 'fade-out': scrollHintFading }">
+            ← scroll to explore map →
         </div>
 
         <!-- Building Details Modal -->
@@ -28,10 +34,14 @@
             @close="closeModal" />
 
         <!-- Team Stats Panel - TOP LEFT -->
-        <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" />
+        <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" :start-collapsed="isMobile" />
 
         <!-- Team Selection - BOTTOM RIGHT -->
-        <TeamSelection :teams="teams" :initial-team-id="selectedTeamId" @team-selected="handleTeamSelected" />
+        <TeamSelection :teams="teams" :initial-team-id="selectedTeamId" :start-collapsed="isMobile"
+            @team-selected="handleTeamSelected" />
+
+        <!-- Compass Navigation - BOTTOM LEFT -->
+        <CompassNavigation :start-collapsed="isMobile" />
     </div>
 </template>
 
@@ -71,6 +81,9 @@ export default {
             selectedTeamId: cacheGet('selectedTeamId', null),
             selectedBuildingId: null,
             selectedBuilding: null,
+            isMobile: window.innerWidth <= 768,
+            showScrollHint: false,
+            scrollHintFading: false,
         }
     },
     computed: {
@@ -95,13 +108,13 @@ export default {
         await this.loadTeams();
         await this.loadBuildings();
         await this.loadResources();
+        window.addEventListener('resize', this.onResize);
     },
     methods: {
         async loadTeams() {
             try {
                 this.isLoadingTeams = true;
                 const data = await apiService.getTeams();
-
                 this.teams = data.teams.map((team) => ({
                     id: team.id,
                     name: team.name,
@@ -110,8 +123,6 @@ export default {
                         alts: player.alts
                     }))
                 }));
-
-                console.log('Loaded teams:', this.teams);
             } catch (error) {
                 console.error('Failed to load teams:', error);
                 this.teams = [];
@@ -123,10 +134,7 @@ export default {
             try {
                 this.isLoadingBuildings = true;
                 const data = await apiService.getBuildings();
-
                 this.buildings = parseBackendBuildings(data.teamsBuildings, buildingLocations);
-
-                console.log('Loaded buildings:', this.buildings);
             } catch (error) {
                 console.error('Failed to load buildings:', error);
                 this.buildings = [];
@@ -138,7 +146,6 @@ export default {
             try {
                 const data = await apiService.getTeamsResources();
                 this.teamResources = data.teamResources;
-                console.log('Loaded resources:', this.teamResources);
             } catch (error) {
                 console.error('Failed to load resources:', error);
                 this.teamResources = [];
@@ -147,16 +154,35 @@ export default {
         onImageLoad() {
             this.imageLoaded = true;
             this.$nextTick(() => {
-                this.mapZoom.initialize(this.$refs.mapScene);
+                if (this.isMobile) {
+                    this.centerMapScroll();
+                    this.showMobileScrollHint();
+                } else {
+                    this.mapZoom.initialize(this.$refs.mapScene);
+                }
             });
+        },
+        centerMapScroll() {
+            const wrapper = this.$refs.mapWrapper;
+            const scene = this.$refs.mapScene;
+            if (!wrapper || !scene) return;
+            // Scroll so the center of the map is centered in the viewport
+            wrapper.scrollLeft = (scene.scrollWidth - wrapper.clientWidth) / 2;
+        },
+        showMobileScrollHint() {
+            this.showScrollHint = true;
+            setTimeout(() => {
+                this.scrollHintFading = true;
+                setTimeout(() => { this.showScrollHint = false; }, 1000);
+            }, 2500);
+        },
+        onResize() {
+            this.isMobile = window.innerWidth <= 768;
         },
         handleTeamSelected(teamId, isUserInteraction = false) {
             this.selectedTeamId = teamId;
-            if (isUserInteraction) {
-                cacheSet('selectedTeamId', teamId);
-            }
+            if (isUserInteraction) cacheSet('selectedTeamId', teamId);
             this.selectedBuildingId = null;
-            console.log('Selected team:', teamId);
         },
         handleBuildingClick(building) {
             this.selectedBuildingId = building.id;
@@ -169,6 +195,7 @@ export default {
     },
     beforeUnmount() {
         this.mapZoom.dispose();
+        window.removeEventListener('resize', this.onResize);
     }
 }
 </script>

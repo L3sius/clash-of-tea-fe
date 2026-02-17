@@ -82,17 +82,30 @@ import { useRoute } from 'vue-router';
 
 export default {
     name: 'CompassNavigation',
-    setup() {
+    props: {
+        startCollapsed: {
+            type: Boolean,
+            default: null  // null = auto-detect
+        }
+    },
+    setup(props) {
         const route = useRoute();
-        const isCollapsed = ref(false);
+
+        // Auto-detect mobile if prop not explicitly provided
+        const isMobileDevice = window.innerWidth <= 768;
+        const shouldStartCollapsed = props.startCollapsed !== null
+            ? props.startCollapsed
+            : isMobileDevice;
+
+        const isCollapsed = ref(shouldStartCollapsed);
 
         const currentRoute = computed(() => route.path);
 
         const needleRotation = computed(() => {
             switch (route.path) {
-                case '/': return 0;        // North (Map)
-                case '/faq': return -90;   // West (F.A.Q)
-                case '/log': return 90;    // East (Log)
+                case '/': return 0;
+                case '/faq': return -90;
+                case '/log': return 90;
                 default: return 0;
             }
         });
