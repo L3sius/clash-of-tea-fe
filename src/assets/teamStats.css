@@ -49,7 +49,7 @@
 
 /* Expanded State - Full Panel */
 .stats-panel {
-    width: 420px;
+    width: 450px;
     max-height: 600px;
     background: linear-gradient(135deg, rgba(40, 30, 20, 0.95), rgba(30, 20, 15, 0.98));
     border: 3px solid #8b7355;
@@ -592,14 +592,13 @@
 /* Responsive */
 @media (max-width: 768px) {
     .team-stats-container {
-        top: 0.75rem;
-        left: 0.75rem;
+        top: 1rem;
+        left: 1rem;
     }
 
     .stats-panel {
-        width: calc(100vw - 1.5rem);
-        max-width: 360px;
-        max-height: 70dvh;
+        width: calc(100vw - 2rem);
+        max-width: 380px;
     }
 
     .panel-header {
@@ -647,11 +646,6 @@
 }
 
 @media (max-width: 480px) {
-    .stats-panel {
-        width: calc(100vw - 1rem);
-        max-width: none;
-    }
-
     .expand-label {
         display: none;
     }
