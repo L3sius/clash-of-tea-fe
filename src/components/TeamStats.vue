@@ -54,7 +54,7 @@
                         <!-- Inventory Grid -->
                         <div v-if="selectedResource" class="inventory-grid">
                             <div v-for="tier in selectedResource.tiers" :key="tier.tier" class="tier-card"
-                                :class="{ empty: tier.quantity === 0 }"
+                                :class="{ empty: tier.quantity === 0 }" :data-tier="tier.tier"
                                 @mouseenter="showTooltip($event, tierLabel(tier.tier))" @mouseleave="hideTooltip()">
                                 <span class="tier-card__label">Tier {{ tier.tier }}</span>
                                 <span class="tier-card__value">{{ tier.quantity }}</span>

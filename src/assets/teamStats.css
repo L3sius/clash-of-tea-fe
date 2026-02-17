@@ -273,6 +273,43 @@
     letter-spacing: 0.3px;
 }
 
+/* Tier label colors — match FAQ tier badge colors */
+.tier-card[data-tier="1"] .tier-card__label {
+    color: #94a3b8;
+}
+
+.tier-card[data-tier="2"] .tier-card__label {
+    color: #67e8f9;
+}
+
+.tier-card[data-tier="3"] .tier-card__label {
+    color: #4ade80;
+}
+
+.tier-card[data-tier="4"] .tier-card__label {
+    color: #86efac;
+}
+
+.tier-card[data-tier="5"] .tier-card__label {
+    color: #fbbf24;
+}
+
+.tier-card[data-tier="6"] .tier-card__label {
+    color: #fb923c;
+}
+
+.tier-card[data-tier="7"] .tier-card__label {
+    color: #f87171;
+}
+
+.tier-card[data-tier="8"] .tier-card__label {
+    color: #c084fc;
+}
+
+.tier-card[data-tier="9"] .tier-card__label {
+    color: #ffd700;
+}
+
 .tier-card__value {
     color: #d4af37;
     font-size: 1.3rem;
