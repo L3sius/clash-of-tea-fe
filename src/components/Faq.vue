@@ -36,7 +36,7 @@
                                 <li>Paste the dynamic config URL:</li>
                             </ul>
                             <div class="code-scroll">
-                                <code>to-be-added/dink/config</code>
+                                <code>https://api.tea-osrs.com/config</code>
                             </div>
                             <ul class="instruction-list">
                                 <li>Set <em>Import policy</em> → <em>Overwrite Webhooks</em></li>
