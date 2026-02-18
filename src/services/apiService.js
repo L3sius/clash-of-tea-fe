@@ -54,6 +54,10 @@ class ApiService {
     getBuildingUpgradeStream() {
         return new EventSource(`${API_BASE_URL}/getBuildingUpgradeStream`);
     }
+
+    getResourcesChangeStream() {
+        return new EventSource(`${API_BASE_URL}/getResourcesChangeStream`);
+    }
 }
 
 export default new ApiService();

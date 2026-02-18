@@ -16,14 +16,6 @@
             <div class="panel-header">
                 <h2 class="panel-title">{{ selectedTeamDisplayName }}</h2>
                 <div class="header-actions">
-                    <!-- Refresh controls - only shown in Resources tab -->
-                    <template v-if="activeTab === 'resources'">
-                        <button class="refresh-btn-compact" @mouseenter="showRefreshInfo" @mouseleave="hideTooltip"
-                            :class="{ 'refreshing': isRefreshingResources }" @click="refreshResources"
-                            :disabled="isRefreshingResources">
-                            <span class="refresh-icon">{{ isRefreshingResources ? '⏳' : '⟲' }}</span>
-                        </button>
-                    </template>
                     <button class="collapse-btn" @click="toggleCollapse" title="Collapse">✕</button>
                 </div>
             </div>
@@ -193,10 +185,8 @@ export default {
             upgradeFeed: [],
             upgradeTeamFilter: null,
             upgradeEventSource: null,
+            resourceChangeEventSource: null,
             tooltip: { visible: false, text: '', x: 0, y: 0 },
-            lastResourceUpdate: null,
-            isRefreshingResources: false,
-            resourceAutoRefreshInterval: null,
         }
     },
     computed: {
@@ -252,20 +242,10 @@ export default {
             const el = event.target;
             const isTruncated = el.scrollWidth > el.clientWidth;
             if (isTruncated) {
-                // Always show the full text when truncated
                 this.showTooltip(event, fullText);
             } else if (fallbackText) {
-                // Not truncated — show the fallback (team name, monster name) if provided
                 this.showTooltip(event, fallbackText);
             }
-            // If neither condition — no tooltip at all
-        },
-        showRefreshInfo(event) {
-            const lastUpdateText = this.lastResourceUpdate
-                ? `Last updated: ${this.formatTimeAgo(this.lastResourceUpdate)}`
-                : 'Not yet loaded';
-            const text = `Resources auto-update every minute\n${lastUpdateText}`;
-            this.showTooltip(event, text);
         },
         hideTooltip() {
             this.tooltip.visible = false;
@@ -284,46 +264,72 @@ export default {
             };
             return ranges[tier] ?? `Tier ${tier}`;
         },
-        formatTimeAgo(timestamp) {
-            const now = Date.now();
-            const diff = Math.floor((now - timestamp) / 1000);
-            if (diff < 10) return 'just now';
+        formatRelativeTime(timestamp) {
+            const diff = Math.floor(Date.now() / 1000) - timestamp;
             if (diff < 60) return `${diff}s ago`;
             if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
             return `${Math.floor(diff / 3600)}h ago`;
         },
-        async refreshResources() {
-            if (this.isRefreshingResources || !this.selectedTeamId) return;
+        applyFullResourceSnapshot(data) {
+            const teamData = data.teamResources?.find(tr => tr.teamId === this.selectedTeamId);
+            if (!teamData) return;
 
-            this.isRefreshingResources = true;
+            this.teamResources = teamData.resources;
+            const cachedSource = cacheGet('statsSelectedSource', null);
+            const isValid = cachedSource && this.teamResources.some(r => r.source === cachedSource);
+            this.selectedSource = isValid ? cachedSource : (this.teamResources[0]?.source || null);
+        },
+        applyResourceDelta(data) {
+            const incoming = data.team_resources;
+            if (!incoming || incoming.teamId !== this.selectedTeamId) return;
+
+            for (const incomingSource of incoming.resources) {
+                const existingSource = this.teamResources.find(r => r.source === incomingSource.source);
+                if (!existingSource) continue;
+
+                for (const incomingTier of incomingSource.tiers) {
+                    const existingTier = existingSource.tiers.find(t => t.tier === incomingTier.tier);
+                    if (existingTier) {
+                        existingTier.quantity += incomingTier.quantity;
+                    }
+                }
+            }
+
+            this.teamResources = [...this.teamResources];
+        },
+        async loadInitialResources() {
+            if (!this.selectedTeamId) return;
+            this.isLoadingResources = true;
             try {
                 const data = await apiService.getTeamsResources();
-                const teamData = data.teamResources.find(tr => tr.teamId === this.selectedTeamId);
-
-                if (teamData && teamData.resources) {
-                    this.teamResources = teamData.resources;
-                    const cachedSource = cacheGet('statsSelectedSource', null);
-                    const isValid = cachedSource && this.teamResources.some(r => r.source === cachedSource);
-                    this.selectedSource = isValid ? cachedSource : (this.teamResources[0]?.source || null);
-                } else {
-                    this.teamResources = [];
-                    this.selectedSource = null;
-                }
-
-                this.lastResourceUpdate = Date.now();
+                this.applyFullResourceSnapshot(data);
             } catch (error) {
-                console.error('Failed to refresh resources:', error);
+                console.error('Failed to load resources:', error);
             } finally {
-                this.isRefreshingResources = false;
+                this.isLoadingResources = false;
             }
         },
-        startResourceAutoRefresh() {
-            if (this.resourceAutoRefreshInterval) {
-                clearInterval(this.resourceAutoRefreshInterval);
+        connectResourceChangeStream() {
+            if (this.resourceChangeEventSource) {
+                this.resourceChangeEventSource.close();
             }
-            this.resourceAutoRefreshInterval = setInterval(() => {
-                this.refreshResources();
-            }, 60000);
+
+            this.resourceChangeEventSource = apiService.getResourcesChangeStream();
+
+            const handleChange = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    this.applyResourceDelta(data);
+                } catch (e) {
+                    console.error('[ResourceStream] Failed to parse SSE message:', e);
+                }
+            };
+
+            this.resourceChangeEventSource.addEventListener('resource_change', handleChange);
+
+            this.resourceChangeEventSource.onerror = (e) => {
+                console.error('[ResourceStream] SSE error:', e);
+            };
         },
         parseMessage(raw) {
             const matches = [...raw.matchAll(/\[([^\]]+)\]/g)].map(m => m[1]);
@@ -355,12 +361,6 @@ export default {
                 source: null,
                 rewards: [],
             };
-        },
-        formatRelativeTime(timestamp) {
-            const diff = Math.floor(Date.now() / 1000) - timestamp;
-            if (diff < 60) return `${diff}s ago`;
-            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-            return `${Math.floor(diff / 3600)}h ago`;
         },
         connectStream() {
             if (this.eventSource) {
@@ -452,39 +452,29 @@ export default {
         async loadTeamData(isTeamSwitch = false) {
             if (!this.selectedTeamId) return;
 
-            // On team switch, just refresh resources — keep streams open since they're global
+            // On team switch, reload resources from REST — streams are global and stay open
             if (isTeamSwitch) {
-                this.isLoadingResources = true;
-                try {
-                    await this.refreshResources();
-                } finally {
-                    this.isLoadingResources = false;
-                }
+                await this.loadInitialResources();
                 return;
             }
 
-            // First load — clear any stale data and open streams fresh
+            // First load — clear stale data and open all three streams fresh
             this.liveFeed = [];
             this.upgradeFeed = [];
 
-            this.isLoadingResources = true;
-            try {
-                await this.refreshResources();
-            } finally {
-                this.isLoadingResources = false;
-            }
+            await this.loadInitialResources();
 
             this.connectStream();
             this.connectUpgradeStream();
-            this.startResourceAutoRefresh();
+            this.connectResourceChangeStream();
         },
     },
     beforeUnmount() {
         if (this.eventSource) this.eventSource.close();
         if (this.upgradeEventSource) this.upgradeEventSource.close();
+        if (this.resourceChangeEventSource) this.resourceChangeEventSource.close();
         if (this.timeUpdateInterval) clearInterval(this.timeUpdateInterval);
         if (this.upgradeTimeInterval) clearInterval(this.upgradeTimeInterval);
-        if (this.resourceAutoRefreshInterval) clearInterval(this.resourceAutoRefreshInterval);
     }
 }
 </script>
