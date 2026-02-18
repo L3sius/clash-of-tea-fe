@@ -223,7 +223,7 @@
     flex: 1;
     padding: 1.25rem 1.5rem;
     overflow-y: auto;
-    overflow-x: visible;
+    overflow-x: hidden;
     min-height: 0;
 }
 
@@ -362,7 +362,6 @@
     color: white;
     font-size: 1.3rem;
     font-weight: bold;
-    /* text-shadow: 0 0 8px rgba(212, 175, 55, 0.4); */
 }
 
 .tier-card.empty .tier-card__value {
@@ -408,7 +407,6 @@
     margin: 0;
 }
 
-/* Activity Feed */
 /* ── Feed Filter ── */
 .feed-filter {
     display: flex;
@@ -447,7 +445,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
-    overflow: visible;
 }
 
 .feed-item {
@@ -460,7 +457,9 @@
     border-left: 3px solid transparent;
     animation: slideInFeed 0.3s ease;
     transition: background 0.2s ease, transform 0.2s ease;
-    overflow: visible;
+    /* FIX: prevent content from escaping the card */
+    overflow: hidden;
+    min-width: 0;
 }
 
 .feed-item:hover {
@@ -497,54 +496,118 @@
     box-shadow: 0 0 5px rgba(248, 113, 113, 0.6);
 }
 
-.feed-content {
-    flex: 1;
-    min-width: 0;
-}
-
-/* Single-line feed row */
+/* feed-line: single row, timestamp anchored right at its natural width */
 .feed-line {
     display: flex;
     align-items: center;
     gap: 0.4rem;
     flex-wrap: nowrap;
     font-size: 0.82rem;
-    white-space: nowrap;
-    overflow: visible;
+    min-width: 0;
+    width: 100%;
 }
 
-
-
+/* Player — most important, gets priority space, shrinks last */
 .feed-player {
     color: #f4e4c1;
     font-weight: bold;
     cursor: default;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
+/* Source — secondary info, shrinks before player */
 .feed-source {
     color: #c9b896;
     cursor: default;
+    flex: 0 2 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
+/* Rewards — badge group, won't grow but can shrink if very tight */
 .feed-rewards {
     display: inline-flex;
     gap: 0.25rem;
     flex-wrap: nowrap;
+    flex: 0 1 auto;
+    min-width: 0;
 }
 
+/* ── Tier badge colors in live feed — mirrors .tier-card[data-tier] colors ── */
 .feed-tier {
-    background: rgba(212, 175, 55, 0.15);
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    color: #d4af37;
     font-size: 0.72rem;
     font-weight: bold;
     padding: 0.1rem 0.35rem;
     border-radius: 4px;
     white-space: nowrap;
+    /* default fallback (should always be overridden by data-tier) */
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: #d4af37;
+}
+
+.feed-tier[data-tier="1"] {
+    color: #94a3b8;
+    background: rgba(148, 163, 184, 0.12);
+    border-color: rgba(148, 163, 184, 0.35);
+}
+
+.feed-tier[data-tier="2"] {
+    color: #67e8f9;
+    background: rgba(103, 232, 249, 0.12);
+    border-color: rgba(103, 232, 249, 0.35);
+}
+
+.feed-tier[data-tier="3"] {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.12);
+    border-color: rgba(74, 222, 128, 0.35);
+}
+
+.feed-tier[data-tier="4"] {
+    color: #86efac;
+    background: rgba(134, 239, 172, 0.12);
+    border-color: rgba(134, 239, 172, 0.35);
+}
+
+.feed-tier[data-tier="5"] {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.12);
+    border-color: rgba(251, 191, 36, 0.35);
+}
+
+.feed-tier[data-tier="6"] {
+    color: #fb923c;
+    background: rgba(251, 146, 60, 0.12);
+    border-color: rgba(251, 146, 60, 0.35);
+}
+
+.feed-tier[data-tier="7"] {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.35);
+}
+
+.feed-tier[data-tier="8"] {
+    color: #c084fc;
+    background: rgba(192, 132, 252, 0.12);
+    border-color: rgba(192, 132, 252, 0.35);
+}
+
+.feed-tier[data-tier="9"] {
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.12);
+    border-color: rgba(255, 215, 0, 0.40);
 }
 
 .feed-qty {
-    color: #a89070;
+    color: inherit;
+    opacity: 0.7;
     font-weight: normal;
 }
 
@@ -552,8 +615,8 @@
     color: #6b5744;
     font-size: 0.7rem;
     font-style: italic;
-    margin-left: auto;
     flex-shrink: 0;
+    white-space: nowrap;
 }
 
 /* ── Upgrade Feed ── */
@@ -576,6 +639,8 @@
     font-weight: bold;
     font-size: 0.82rem;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .upgrade-arrow {
@@ -682,7 +747,6 @@
         grid-template-columns: repeat(3, 1fr);
     }
 
-    /* Bigger tap targets for feed items on mobile */
     .feed-item {
         padding: 0.55rem 0.6rem;
     }
