@@ -1,6 +1,6 @@
 <template>
   <!-- <Header></Header> -->
-  <CompassNavigation></CompassNavigation>
+  <CompassNavigation />
   <main class="router-view-container">
     <RouterView />
   </main>

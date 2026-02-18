@@ -156,6 +156,7 @@ import { cacheGet, cacheSet } from '@/utils/useCache';
 
 export default {
     name: 'TeamStats',
+    emits: ['collapsed-changed'],
     props: {
         selectedTeamId: {
             type: Number,
@@ -233,6 +234,7 @@ export default {
     methods: {
         toggleCollapse() {
             this.isCollapsed = !this.isCollapsed;
+            this.$emit('collapsed-changed', this.isCollapsed);
         },
         showTooltip(event, text) {
             const rect = event.target.getBoundingClientRect();

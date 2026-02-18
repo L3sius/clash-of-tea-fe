@@ -28,6 +28,7 @@
 <script>
 export default {
     name: 'TeamSelection',
+    emits: ['team-selected', 'collapsed-changed'],
     props: {
         teams: {
             type: Array,
@@ -56,6 +57,7 @@ export default {
         },
         toggleCollapse() {
             this.isCollapsed = !this.isCollapsed;
+            this.$emit('collapsed-changed', this.isCollapsed);
         }
     },
     mounted() {

@@ -79,23 +79,24 @@
 <script>
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { cacheGet, cacheSet } from '@/utils/useCache';
 
 export default {
     name: 'CompassNavigation',
     props: {
         startCollapsed: {
-            type: Boolean,
-            default: null  // null = auto-detect
+            type: [Boolean, null],
+            default: null
         }
     },
-    setup(props) {
+    emits: ['collapsed-changed'],
+    setup({ emit }) {
         const route = useRoute();
 
-        // Auto-detect mobile if prop not explicitly provided
         const isMobileDevice = window.innerWidth <= 768;
-        const shouldStartCollapsed = props.startCollapsed !== null
-            ? props.startCollapsed
-            : isMobileDevice;
+
+        // Manage cache internally since this component is global in App.vue
+        const shouldStartCollapsed = cacheGet('panel:compass', isMobileDevice);
 
         const isCollapsed = ref(shouldStartCollapsed);
 
@@ -112,6 +113,8 @@ export default {
 
         const toggleCollapse = () => {
             isCollapsed.value = !isCollapsed.value;
+            cacheSet('panel:compass', isCollapsed.value);
+            emit('collapsed-changed', isCollapsed.value);
         };
 
         return {
