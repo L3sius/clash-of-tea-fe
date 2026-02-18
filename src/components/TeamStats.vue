@@ -94,20 +94,22 @@
                             :class="entry.success ? 'feed-success' : 'feed-fail'">
                             <div class="feed-status-dot" :class="entry.success ? 'dot-success' : 'dot-fail'"></div>
                             <div class="feed-line">
-                                <!-- Player -->
+                                <!-- Player: shows full name if truncated, team if not truncated (success only) -->
                                 <span class="feed-player"
-                                    @mouseenter="entry.success && showTooltip($event, 'Team: ' + entry.team)"
-                                    @mouseleave="entry.success && hideTooltip()">{{ entry.player }}</span>
+                                    @mouseenter="showFeedTooltip($event, entry.player, entry.success ? 'Team: ' + entry.team : null)"
+                                    @mouseleave="hideTooltip()">{{ entry.player }}</span>
 
-                                <!-- Source -->
+                                <!-- Source: shows full monster name if truncated -->
                                 <span v-if="entry.source" class="feed-source"
-                                    @mouseenter="entry.success && showTooltip($event, 'Source: ' + entry.monster)"
-                                    @mouseleave="entry.success && hideTooltip()">{{ entry.source }}</span>
+                                    @mouseenter="showFeedTooltip($event, entry.source, entry.success ? 'Source: ' + entry.monster : null)"
+                                    @mouseleave="hideTooltip()">{{ entry.source }}</span>
 
-                                <!-- Rewards -->
+                                <!-- Rewards — data-tier drives the per-tier colour in CSS -->
                                 <span v-if="entry.rewards.length" class="feed-rewards">
-                                    <span v-for="r in entry.rewards" :key="r.tier" class="feed-tier">T{{ r.tier }} <span
-                                            class="feed-qty">(x{{ r.qty }})</span></span>
+                                    <span v-for="r in entry.rewards" :key="r.tier" class="feed-tier"
+                                        :data-tier="r.tier">
+                                        T{{ r.tier }} <span class="feed-qty">(x{{ r.qty }})</span>
+                                    </span>
                                 </span>
 
                                 <span class="feed-time">{{ entry.relativeTime }}</span>
@@ -134,9 +136,10 @@
                     </div>
                     <div v-else class="activity-feed">
                         <div v-for="entry in filteredUpgrades" :key="entry.id" class="feed-item upgrade-item">
-                            <div class="feed-line">
+                            <div class="feed-line">-
                                 <span class="upgrade-icon">🏰</span>
                                 <span class="upgrade-building">{{ entry.buildingName }}</span>
+                                <span class="upgrade-level">Lvl {{ entry.newLevel - 1 }}</span>
                                 <span class="upgrade-arrow">→</span>
                                 <span class="upgrade-level">Lvl {{ entry.newLevel }}</span>
                                 <span class="upgrade-team">{{ entry.teamName }}</span>
@@ -218,9 +221,9 @@ export default {
     watch: {
         selectedTeamId: {
             immediate: true,
-            handler(newTeamId) {
+            handler(newTeamId, oldTeamId) {
                 if (newTeamId) {
-                    this.loadTeamData();
+                    this.loadTeamData(!!oldTeamId);
                 }
             }
         },
@@ -244,6 +247,18 @@ export default {
                 x: rect.left + rect.width / 2,
                 y: rect.top,
             };
+        },
+        showFeedTooltip(event, fullText, fallbackText) {
+            const el = event.target;
+            const isTruncated = el.scrollWidth > el.clientWidth;
+            if (isTruncated) {
+                // Always show the full text when truncated
+                this.showTooltip(event, fullText);
+            } else if (fallbackText) {
+                // Not truncated — show the fallback (team name, monster name) if provided
+                this.showTooltip(event, fallbackText);
+            }
+            // If neither condition — no tooltip at all
         },
         showRefreshInfo(event) {
             const lastUpdateText = this.lastResourceUpdate
@@ -303,24 +318,19 @@ export default {
             }
         },
         startResourceAutoRefresh() {
-            // Clear any existing interval
             if (this.resourceAutoRefreshInterval) {
                 clearInterval(this.resourceAutoRefreshInterval);
             }
-            // Refresh every 60 seconds
             this.resourceAutoRefreshInterval = setInterval(() => {
                 this.refreshResources();
             }, 60000);
         },
-        // Parse "[Player (account)] [Source (detail)] [Tier (xN)]" into structured fields
         parseMessage(raw) {
-            // Bracketed format: "[Player (team)] [Monster (source)] [T1 (x1), T2 (x3)]"
             const matches = [...raw.matchAll(/\[([^\]]+)\]/g)].map(m => m[1]);
             if (matches.length >= 3) {
                 const playerMatch = matches[0].match(/^(.+?)\s+\((.+?)\)$/);
                 const monsterMatch = matches[1].match(/^(.+?)\s+\((.+?)\)$/);
 
-                // Parse all tier rewards: "T1 (x5), T2 (x1)" → [{tier:1, qty:5}, {tier:2, qty:1}]
                 const rewards = [];
                 for (const rewardStr of matches.slice(2)) {
                     const rewardMatches = [...rewardStr.matchAll(/T(\d+)\s*\(x(\d+)\)/g)];
@@ -338,7 +348,6 @@ export default {
                 };
             }
 
-            // Plain text fallback for failed actions
             return {
                 player: raw,
                 team: null,
@@ -389,7 +398,6 @@ export default {
                 console.error('[LiveFeed] SSE error:', e);
             };
 
-            // Update relative timestamps every 30s so "5s ago" stays accurate
             if (this.timeUpdateInterval) clearInterval(this.timeUpdateInterval);
             this.timeUpdateInterval = setInterval(() => {
                 this.liveFeed = this.liveFeed.map(e => ({
@@ -441,8 +449,23 @@ export default {
                 }));
             }, 30000);
         },
-        async loadTeamData() {
+        async loadTeamData(isTeamSwitch = false) {
             if (!this.selectedTeamId) return;
+
+            // On team switch, just refresh resources — keep streams open since they're global
+            if (isTeamSwitch) {
+                this.isLoadingResources = true;
+                try {
+                    await this.refreshResources();
+                } finally {
+                    this.isLoadingResources = false;
+                }
+                return;
+            }
+
+            // First load — clear any stale data and open streams fresh
+            this.liveFeed = [];
+            this.upgradeFeed = [];
 
             this.isLoadingResources = true;
             try {
