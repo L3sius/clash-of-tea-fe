@@ -34,14 +34,15 @@
             @close="closeModal" />
 
         <!-- Team Stats Panel - TOP LEFT -->
-        <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" :start-collapsed="isMobile" />
+        <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" :start-collapsed="teamStatsCollapsed"
+            @collapsed-changed="onTeamStatsCollapsed" />
 
         <!-- Team Selection - BOTTOM RIGHT -->
-        <TeamSelection :teams="teams" :initial-team-id="selectedTeamId" :start-collapsed="isMobile"
-            @team-selected="handleTeamSelected" />
+        <TeamSelection :teams="teams" :initial-team-id="selectedTeamId" :start-collapsed="teamSelCollapsed"
+            @team-selected="handleTeamSelected" @collapsed-changed="onTeamSelCollapsed" />
 
         <!-- Compass Navigation - BOTTOM LEFT -->
-        <CompassNavigation :start-collapsed="isMobile" />
+        <CompassNavigation :start-collapsed="compassCollapsed" />
     </div>
 </template>
 
@@ -84,6 +85,9 @@ export default {
             isMobile: window.innerWidth <= 768,
             showScrollHint: false,
             scrollHintFading: false,
+            teamStatsCollapsed: cacheGet('panel:teamStats', window.innerWidth <= 768),
+            teamSelCollapsed: cacheGet('panel:teamSelection', window.innerWidth <= 768),
+            compassCollapsed: cacheGet('panel:compass', window.innerWidth <= 768),
         }
     },
     computed: {
@@ -191,7 +195,9 @@ export default {
         closeModal() {
             this.selectedBuilding = null;
             this.selectedBuildingId = null;
-        }
+        },
+        onTeamStatsCollapsed(val) { this.teamStatsCollapsed = val; cacheSet('panel:teamStats', val) },
+        onTeamSelCollapsed(val) { this.teamSelCollapsed = val; cacheSet('panel:teamSelection', val) }
     },
     beforeUnmount() {
         this.mapZoom.dispose();
