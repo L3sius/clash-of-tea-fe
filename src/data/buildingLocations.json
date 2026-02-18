@@ -1,10 +1,10 @@
 [
   { "name": "slayer_tower", "x": 19, "y": 21 },
   { "name": "chambers_of_xeric", "x": 36, "y": 69 },
-  { "name": "theatre", "x": 23, "y": 81 },
+  { "name": "theatre", "x": 23, "y": 79 },
   { "name": "tombs", "x": 22, "y": 60 },
   { "name": "minigames", "x": 75, "y": 28 },
-  { "name": "misc", "x": 69, "y": 52 },
+  { "name": "misc", "x": 68.5, "y": 52 },
   { "name": "dt2", "x": 71, "y": 71 },
   { "name": "god_wars", "x": 55.5, "y": 65 },
   { "name": "classics", "x": 35, "y": 45 },
@@ -13,5 +13,5 @@
   { "name": "fan_favourites", "x": 80, "y": 57 },
   { "name": "wilderness", "x": 88, "y": 14 },
   { "name": "skilling", "x": 35.5, "y": 26 },
-  { "name": "town_hall", "x": 54, "y": 32 }
+  { "name": "town_hall", "x": 54.5, "y": 31.5 }
 ]
