@@ -128,8 +128,7 @@
                     </div>
                     <div v-else class="activity-feed">
                         <div v-for="entry in filteredUpgrades" :key="entry.id" class="feed-item upgrade-item">
-                            <div class="feed-line">-
-                                <span class="upgrade-icon">🏰</span>
+                            <div class="feed-line">
                                 <span class="upgrade-building">{{ entry.buildingName }}</span>
                                 <span class="upgrade-level">Lvl {{ entry.newLevel - 1 }}</span>
                                 <span class="upgrade-arrow">→</span>
