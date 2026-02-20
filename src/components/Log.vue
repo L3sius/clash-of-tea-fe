@@ -74,11 +74,29 @@
                             <div class="buildings-list">
                                 <div v-for="building in getTeamBuildings(team.id)" :key="building.name"
                                     class="building-row">
-                                    <span class="building-row__name">{{ building.name }}</span>
-                                    <span class="building-row__level"
-                                        :class="building.level > 0 ? 'level--upgraded' : 'level--zero'">
-                                        Lvl {{ building.level }}
-                                    </span>
+                                    <div class="building-row__main">
+                                        <span class="building-row__name">{{ building.name }}</span>
+                                        <span class="building-row__level"
+                                            :class="building.level > 0 ? 'level--upgraded' : 'level--zero'">
+                                            Lvl {{ building.level }}
+                                        </span>
+                                    </div>
+                                    <div v-if="building.upgradable && building.upgradeOptions && building.upgradeOptions.length"
+                                        class="building-row__options">
+                                        <span v-for="option in building.upgradeOptions" :key="option.optionId"
+                                            class="upgrade-option-pill">
+                                            <span class="upgrade-option-id">{{ option.optionId }}:</span>
+                                            <span v-for="(req, i) in option.requirements" :key="i" class="upgrade-req">
+                                                {{ req.name }} T{{ req.tier }}
+                                                <span class="upgrade-qty">×{{ req.quantity }}</span>
+                                                <span v-if="i < option.requirements.length - 1"
+                                                    class="upgrade-req-sep">+</span>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div v-else-if="!building.upgradable" class="building-row__maxed">
+                                        🏆 Max level
+                                    </div>
                                 </div>
                             </div>
                         </template>
