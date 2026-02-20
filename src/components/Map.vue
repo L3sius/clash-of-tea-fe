@@ -127,6 +127,10 @@ export default {
                         alts: player.alts
                     }))
                 }));
+
+                if (!this.selectedTeamId && this.teams.length > 0) {
+                    this.handleTeamSelected(this.teams[0].id, false);
+                }
             } catch (error) {
                 console.error('Failed to load teams:', error);
                 this.teams = [];

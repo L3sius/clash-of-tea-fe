@@ -62,6 +62,13 @@ export default {
     },
     mounted() {
         this.$emit('team-selected', this.selectedTeamId, false);
+    },
+    watch: {
+        initialTeamId(val) {
+            if (val && !this.selectedTeamId) {
+                this.selectedTeamId = val;
+            }
+        }
     }
 }
 </script>
