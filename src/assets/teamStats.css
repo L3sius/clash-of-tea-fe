@@ -668,6 +668,20 @@
     white-space: nowrap;
 }
 
+.panel-title {
+    color: #f4e4c1;
+    font-size: 1.5rem;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 1.5px;
+    /* Truncation */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 320px;
+    cursor: default;
+}
+
 @keyframes spin {
     from {
         transform: rotate(0deg);

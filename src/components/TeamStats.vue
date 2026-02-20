@@ -14,7 +14,9 @@
         <div v-else class="stats-panel">
             <!-- Header -->
             <div class="panel-header">
-                <h2 class="panel-title">{{ selectedTeamDisplayName }}</h2>
+                <h2 class="panel-title" @mouseenter="showTitleTooltip($event)" @mouseleave="hideTooltip">
+                    {{ selectedTeamDisplayName }}
+                </h2>
                 <div class="header-actions">
                     <button class="collapse-btn" @click="toggleCollapse" title="Collapse">✕</button>
                 </div>
@@ -467,6 +469,18 @@ export default {
             this.connectUpgradeStream();
             this.connectResourceChangeStream();
         },
+        showTitleTooltip(event) {
+            const el = event.currentTarget;
+            // Only show if text is actually truncated
+            if (el.scrollWidth <= el.clientWidth) return;
+            const rect = el.getBoundingClientRect();
+            this.tooltip = {
+                visible: true,
+                text: this.selectedTeamDisplayName,
+                x: rect.left + rect.width / 2,
+                y: rect.top,
+            };
+        }
     },
     beforeUnmount() {
         if (this.eventSource) this.eventSource.close();

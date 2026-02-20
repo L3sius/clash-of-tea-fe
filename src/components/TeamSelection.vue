@@ -16,11 +16,18 @@
 
             <div class="legend-content">
                 <div v-for="team in teams" :key="team.id" class="team-item"
-                    :class="{ 'selected': selectedTeamId === team.id }" @click="selectTeam(team.id)">
+                    :class="{ 'selected': selectedTeamId === team.id }" @click="selectTeam(team.id)"
+                    @mouseenter="showTooltip($event, team.name)" @mouseleave="hideTooltip">
                     <div class="team-marker"></div>
                     <span class="team-name">{{ team.name }}</span>
                 </div>
             </div>
+        </div>
+
+        <!-- Custom Tooltip -->
+        <div v-if="tooltip.visible" class="team-legend-tooltip"
+            :style="{ top: tooltip.y + 'px', left: tooltip.x + 'px' }">
+            {{ tooltip.text }}
         </div>
     </div>
 </template>
@@ -47,7 +54,13 @@ export default {
         const isMobile = window.innerWidth <= 768;
         return {
             selectedTeamId: this.initialTeamId,
-            isCollapsed: this.startCollapsed !== null ? this.startCollapsed : isMobile
+            isCollapsed: this.startCollapsed !== null ? this.startCollapsed : isMobile,
+            tooltip: {
+                visible: false,
+                text: '',
+                x: 0,
+                y: 0
+            }
         }
     },
     methods: {
@@ -58,6 +71,19 @@ export default {
         toggleCollapse() {
             this.isCollapsed = !this.isCollapsed;
             this.$emit('collapsed-changed', this.isCollapsed);
+        },
+        showTooltip(event, name) {
+            if (name.length <= 18) return;
+            const rect = event.currentTarget.getBoundingClientRect();
+            this.tooltip = {
+                visible: true,
+                text: name,
+                x: rect.left + rect.width / 2,
+                y: rect.top
+            };
+        },
+        hideTooltip() {
+            this.tooltip.visible = false;
         }
     },
     mounted() {
