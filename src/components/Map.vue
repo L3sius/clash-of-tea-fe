@@ -30,8 +30,8 @@
         </div>
 
         <!-- Building Details Modal -->
-        <BuildingDetailsModal :building="selectedBuilding" :team-resources="selectedTeamResources"
-            @close="closeModal" />
+        <BuildingDetailsModal :building="selectedBuilding" :team-resources="selectedTeamResources" @close="closeModal"
+            @open-building="onOpenBuilding" />
 
         <!-- Team Stats Panel - TOP LEFT -->
         <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" :start-collapsed="teamStatsCollapsed"
@@ -201,7 +201,16 @@ export default {
             this.selectedBuildingId = null;
         },
         onTeamStatsCollapsed(val) { this.teamStatsCollapsed = val; cacheSet('panel:teamStats', val) },
-        onTeamSelCollapsed(val) { this.teamSelCollapsed = val; cacheSet('panel:teamSelection', val) }
+        onTeamSelCollapsed(val) { this.teamSelCollapsed = val; cacheSet('panel:teamSelection', val) },
+        onOpenBuilding(buildingName) {
+            const target = this.buildings.find(
+                b => b.name.toLowerCase() === buildingName.toLowerCase()
+            );
+            console.log(target);
+            if (target) {
+                this.selectedBuilding = target; // swaps the modal content instantly
+            }
+        }
     },
     beforeUnmount() {
         this.mapZoom.dispose();

@@ -57,7 +57,10 @@
                                     class="requirement-item"
                                     :class="{ 'requirement-item--fulfilled': isReqFulfilled(req) }">
                                     <div class="requirement-header">
-                                        <span class="requirement-building">{{ req.name }}</span>
+                                        <span class="requirement-building requirement-building--link"
+                                            @click="openBuilding(req.name)">
+                                            {{ req.name }}
+                                        </span>
                                     </div>
                                     <div class="requirement-details">
                                         <span class="tier-badge" :class="`tier-${req.tier}`">Tier {{ req.tier }}</span>
@@ -153,6 +156,9 @@ export default {
                 // Snap back
                 this.swipeDelta = 0;
             }
+        },
+        openBuilding(buildingName) {
+            this.$emit('open-building', buildingName);
         },
     }
 }
