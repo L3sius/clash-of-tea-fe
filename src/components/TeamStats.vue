@@ -386,7 +386,7 @@ export default {
                     };
 
                     this.liveFeed.unshift(entry);
-                    if (this.liveFeed.length > 100) this.liveFeed.pop();
+                    if (this.liveFeed.length > 1000) this.liveFeed.pop();
                 } catch (e) {
                     console.error('[LiveFeed] Failed to parse SSE message:', e);
                 }
