@@ -396,6 +396,16 @@
     transform: scale(0.9);
 }
 
+.requirement-building--link {
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.requirement-building--link:hover {
+    opacity: 0.75;
+}
+
 /* ── Mobile ── */
 @media (max-width: 768px) {
     .modal-overlay {
