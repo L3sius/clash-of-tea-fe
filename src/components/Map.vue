@@ -113,7 +113,7 @@ export default {
         await this.loadTeams();
         await this.loadBuildings();
         await this.loadResources();
-        this.connectResourceChangeStream(); // <-- add this
+        this.connectResourceChangeStream();
         window.addEventListener('resize', this.onResize);
     },
     methods: {
@@ -189,7 +189,6 @@ export default {
                         }
                     }
 
-                    // Trigger Vue reactivity
                     this.teamResources = [...this.teamResources];
                 } catch (e) {
                     console.error('[ResourceStream] Failed to parse SSE message:', e);
@@ -215,7 +214,6 @@ export default {
             const wrapper = this.$refs.mapWrapper;
             const scene = this.$refs.mapScene;
             if (!wrapper || !scene) return;
-            // Scroll so the center of the map is centered in the viewport
             wrapper.scrollLeft = (scene.scrollWidth - wrapper.clientWidth) / 2;
         },
         showMobileScrollHint() {
@@ -235,7 +233,8 @@ export default {
         },
         handleBuildingClick(building) {
             this.selectedBuildingId = building.id;
-            this.selectedBuilding = building;
+            const team = this.teams.find(t => t.id === building.teamId);
+            this.selectedBuilding = { ...building, teamName: team?.name ?? building.teamName };
         },
         closeModal() {
             this.selectedBuilding = null;
@@ -246,12 +245,13 @@ export default {
         onOpenBuilding(buildingName) {
             const target = this.buildings.find(
                 b => b.name.toLowerCase() === buildingName.toLowerCase()
+                    && b.teamId === this.selectedTeamId
             );
-            console.log(target);
             if (target) {
-                this.selectedBuilding = target; // swaps the modal content instantly
+                const team = this.teams.find(t => t.id === target.teamId);
+                this.selectedBuilding = { ...target, teamName: team?.name ?? target.teamName };
             }
-        }
+        },
     },
     beforeUnmount() {
         this.mapZoom.dispose();
