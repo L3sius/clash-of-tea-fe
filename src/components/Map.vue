@@ -35,7 +35,7 @@
 
         <!-- Team Stats Panel - TOP LEFT -->
         <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" :start-collapsed="teamStatsCollapsed"
-            @collapsed-changed="onTeamStatsCollapsed" />
+            :team-resources="teamResources" @collapsed-changed="onTeamStatsCollapsed" />
 
         <!-- Team Selection - BOTTOM RIGHT -->
         <TeamSelection :teams="teams" :initial-team-id="selectedTeamId" :start-collapsed="teamSelCollapsed"
@@ -88,6 +88,7 @@ export default {
             teamStatsCollapsed: cacheGet('panel:teamStats', window.innerWidth <= 768),
             teamSelCollapsed: cacheGet('panel:teamSelection', window.innerWidth <= 768),
             compassCollapsed: cacheGet('panel:compass', window.innerWidth <= 768),
+            resourceChangeEventSource: null,
         }
     },
     computed: {
@@ -112,6 +113,7 @@ export default {
         await this.loadTeams();
         await this.loadBuildings();
         await this.loadResources();
+        this.connectResourceChangeStream(); // <-- add this
         window.addEventListener('resize', this.onResize);
     },
     methods: {
@@ -158,6 +160,45 @@ export default {
                 console.error('Failed to load resources:', error);
                 this.teamResources = [];
             }
+        },
+        connectResourceChangeStream() {
+            if (this.resourceChangeEventSource) {
+                this.resourceChangeEventSource.close();
+            }
+
+            this.resourceChangeEventSource = apiService.getResourcesChangeStream();
+
+            this.resourceChangeEventSource.addEventListener('resource_change', (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    const incoming = data.team_resources;
+                    if (!incoming) return;
+
+                    const teamEntry = this.teamResources.find(t => t.teamId === incoming.teamId);
+                    if (!teamEntry) return;
+
+                    for (const incomingSource of incoming.resources) {
+                        const existingSource = teamEntry.resources.find(r => r.source === incomingSource.source);
+                        if (!existingSource) continue;
+
+                        for (const incomingTier of incomingSource.tiers) {
+                            const existingTier = existingSource.tiers.find(t => t.tier === incomingTier.tier);
+                            if (existingTier) {
+                                existingTier.quantity += incomingTier.quantity;
+                            }
+                        }
+                    }
+
+                    // Trigger Vue reactivity
+                    this.teamResources = [...this.teamResources];
+                } catch (e) {
+                    console.error('[ResourceStream] Failed to parse SSE message:', e);
+                }
+            });
+
+            this.resourceChangeEventSource.onerror = (e) => {
+                console.error('[ResourceStream] SSE error:', e);
+            };
         },
         onImageLoad() {
             this.imageLoaded = true;
@@ -214,6 +255,7 @@ export default {
     },
     beforeUnmount() {
         this.mapZoom.dispose();
+        if (this.resourceChangeEventSource) this.resourceChangeEventSource.close();
         window.removeEventListener('resize', this.onResize);
     }
 }
