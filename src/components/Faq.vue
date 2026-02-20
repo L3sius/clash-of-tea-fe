@@ -285,6 +285,7 @@
                                     <li>Fortis Colosseum</li>
                                     <li>Gauntlet</li>
                                     <li>Corrupted Gauntlet</li>
+                                    <li>Spoils of war</li>
                                 </ul>
                             </div>
 
@@ -346,7 +347,7 @@
 
                             <!-- Noob Friendly -->
                             <div class="source-category">
-                                <h3 class="category-title">🌱 Noob Friendly</h3>
+                                <h3 class="category-title">🌱 Noob-Friendly</h3>
                                 <ul class="source-list">
                                     <li>Scurrius</li>
                                     <li>Giant Mole</li>
@@ -375,7 +376,7 @@
                                     <li>Scorpia</li>
                                     <li>King Black Dragon</li>
                                     <li>Chaos Elemental</li>
-                                    <li>Revenant Maledictus</li>
+                                    <li>All Revenants</li>
                                     <li>Vet'ion / Calvar'ion</li>
                                     <li>Venenatis / Spindel</li>
                                     <li>Callisto / Artio</li>
@@ -390,6 +391,10 @@
                                     <li>Tempoross</li>
                                     <li>Zalcano</li>
                                     <li>Guardians of the Rift</li>
+                                    <li>Bird nest</li>
+                                    <li>All salvages</li>
+                                    <li>Seed pack</li>
+                                    <li>Herbiboar</li>
                                 </ul>
                             </div>
                         </div>

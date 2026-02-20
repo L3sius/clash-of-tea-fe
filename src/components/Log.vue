@@ -14,7 +14,7 @@
                     <div class="loading-spinner">⏳</div>
                     <p>Loading teams...</p>
                 </div>
-                <div v-else class="teams-scroll" style="overflow: visible;">
+                <div v-else class="teams-scroll">
                     <div v-for="team in teams" :key="team.id" class="team-block">
                         <div class="team-header">
                             <div class="team-badge" :style="{ backgroundColor: getTeamColor(team.id) }"></div>
@@ -30,7 +30,7 @@
                                     <span class="player-marker">▸</span>
                                     <span class="player-name">{{ playerData.main }}</span>
                                     <span v-if="playerData.alts.length > 0" class="alt-badge">{{ playerData.alts.length
-                                        }}</span>
+                                    }}</span>
                                 </div>
                             </div>
                         </div>
@@ -135,7 +135,7 @@
                                 building.mvp.teamName }}</span>
                             <span class="mvp-value">
                                 <template v-if="buildingFilter === 'value'">{{ formatValue(building.mvp.value)
-                                }}</template>
+                                    }}</template>
                                 <template v-else>{{ building.mvp.drops }} drops</template>
                             </span>
                         </template>
