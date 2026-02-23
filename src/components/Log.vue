@@ -35,7 +35,7 @@
                                     {{ getTotalPlayerCount(team) }} explorers
                                 </template>
                                 <template v-else>
-                                    {{ getTeamBuildings(team.id).length }} buildings
+                                    {{ getTeamBuildingLevels(team.id) }} total levels
                                 </template>
                             </span>
                         </div>
@@ -72,7 +72,7 @@
                         <!-- Buildings view -->
                         <template v-else>
                             <div class="buildings-list">
-                                <div v-for="building in getTeamBuildings(team.id)" :key="building.name"
+                                <div v-for="building in getTeamBuildingsSorted(team.id)" :key="building.name"
                                     class="building-row">
                                     <div class="building-row__main">
                                         <span class="building-row__name">{{ building.name }}</span>
@@ -318,7 +318,12 @@ export default {
                 this.isLoadingStats = false;
             }
         },
-        getTeamBuildings(teamId) {
+        getTeamBuildingLevels(teamId) {
+            return this.buildings
+                .filter(b => b.teamId === teamId)
+                .reduce((sum, b) => sum + (b.level || 0), 0);
+        },
+        getTeamBuildingsSorted(teamId) {
             return this.buildings
                 .filter(b => b.teamId === teamId)
                 .sort((a, b) => a.name.localeCompare(b.name));
