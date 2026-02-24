@@ -682,6 +682,261 @@
     cursor: default;
 }
 
+/* ═══════════════════════════════════════════════
+   Buildings Tab
+   ═══════════════════════════════════════════════ */
+
+.buildings-tab-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.45rem;
+    align-items: start;
+}
+
+.building-tab-item {
+    background: rgba(20, 15, 10, 0.4);
+    border: 1px solid rgba(139, 115, 85, 0.3);
+    border-radius: 6px;
+    padding: 0.6rem 0.75rem;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.building-tab-item:hover {
+    background: rgba(30, 25, 20, 0.5);
+    border-color: rgba(139, 115, 85, 0.55);
+}
+
+/* ── Header row: name + level badge ── */
+.building-tab-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.building-tab-name {
+    color: #f4e4c1;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 0.88rem;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.building-tab-level {
+    font-size: 0.72rem;
+    font-weight: bold;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.building-tab-level.level--upgraded {
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    color: #d4af37;
+}
+
+.building-tab-level.level--zero {
+    background: rgba(139, 115, 85, 0.1);
+    border: 1px solid rgba(139, 115, 85, 0.25);
+    color: #8b7355;
+}
+
+/* ── Max level ── */
+.building-tab-maxed {
+    color: #d4af37;
+    font-size: 0.75rem;
+    font-style: italic;
+    opacity: 0.8;
+    padding-left: 0.1rem;
+}
+
+/* ── No options fallback ── */
+.building-tab-no-options {
+    color: #6b5744;
+    font-size: 0.75rem;
+    font-style: italic;
+    padding-left: 0.1rem;
+}
+
+/* ── Upgrade options container ── */
+.building-tab-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+/* ── Single option row ── */
+.building-tab-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    padding: 0.3rem 0.4rem;
+    background: rgba(15, 10, 5, 0.35);
+    border: 1px solid rgba(139, 115, 85, 0.2);
+    border-radius: 4px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.building-tab-option.option--fulfilled {
+    border-color: rgba(74, 222, 128, 0.4);
+    background: rgba(74, 222, 128, 0.05);
+}
+
+/* ── Option label (A / B) ── */
+.building-tab-option-label {
+    color: #8b7355;
+    font-size: 0.7rem;
+    font-weight: bold;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    padding-top: 0.05rem;
+    min-width: 0.85rem;
+}
+
+.option--fulfilled .building-tab-option-label {
+    color: #4ade80;
+}
+
+/* ── Requirements list ── */
+.building-tab-reqs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+/* ── Single requirement chip ── */
+.building-tab-req {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.74rem;
+}
+
+.req-name {
+    color: #c9b896;
+    white-space: nowrap;
+}
+
+/* Tier badge — mirrors existing feed-tier colours */
+.req-tier {
+    font-size: 0.68rem;
+    font-weight: bold;
+    padding: 0.08rem 0.3rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: #d4af37;
+}
+
+.req-tier[data-tier="1"] {
+    color: #94a3b8;
+    background: rgba(148, 163, 184, 0.12);
+    border-color: rgba(148, 163, 184, 0.35);
+}
+
+.req-tier[data-tier="2"] {
+    color: #67e8f9;
+    background: rgba(103, 232, 249, 0.12);
+    border-color: rgba(103, 232, 249, 0.35);
+}
+
+.req-tier[data-tier="3"] {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.12);
+    border-color: rgba(74, 222, 128, 0.35);
+}
+
+.req-tier[data-tier="4"] {
+    color: #86efac;
+    background: rgba(134, 239, 172, 0.12);
+    border-color: rgba(134, 239, 172, 0.35);
+}
+
+.req-tier[data-tier="5"] {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.12);
+    border-color: rgba(251, 191, 36, 0.35);
+}
+
+.req-tier[data-tier="6"] {
+    color: #fb923c;
+    background: rgba(251, 146, 60, 0.12);
+    border-color: rgba(251, 146, 60, 0.35);
+}
+
+.req-tier[data-tier="7"] {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.35);
+}
+
+.req-tier[data-tier="8"] {
+    color: #c084fc;
+    background: rgba(192, 132, 252, 0.12);
+    border-color: rgba(192, 132, 252, 0.35);
+}
+
+.req-tier[data-tier="9"] {
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.12);
+    border-color: rgba(255, 215, 0, 0.40);
+}
+
+/* ── Progress: owned / required ── */
+.req-progress {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.req--met .req-progress {
+    color: #4ade80;
+}
+
+.req--unmet .req-progress {
+    color: #f87171;
+}
+
+/* ── Separator between requirements ── */
+.req-sep {
+    color: #6b5744;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+}
+
+/* ── Widen panel slightly to comfortably fit 2-column buildings grid ── */
+.stats-panel {
+    width: 520px;
+}
+
+@media (max-width: 768px) {
+    .stats-panel {
+        width: calc(100vw - 2rem);
+        max-width: 420px;
+    }
+
+    .buildings-tab-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .buildings-tab-list {
+        grid-template-columns: 1fr;
+    }
+}
+
 @keyframes spin {
     from {
         transform: rotate(0deg);
@@ -769,6 +1024,10 @@
         padding: 0.35rem 0.75rem;
         font-size: 0.8rem;
     }
+
+    .popout-btn {
+        display: none !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -802,4 +1061,42 @@
 .slide-fade-leave-to {
     opacity: 0;
     transform: translateX(-20px) scale(0.95);
+}
+
+/* ── Live feed popout row ── */
+.feed-filter-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.feed-filter-row .feed-filter {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.popout-btn {
+    padding-top: 5px;
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    background: rgba(20, 15, 10, 0.5);
+    border: 1px solid rgba(139, 115, 85, 0.4);
+    border-radius: 5px;
+    color: #c9b896;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-top: 0.1rem;
+}
+
+.popout-btn:hover {
+    background: rgba(40, 30, 20, 0.7);
+    border-color: #d4af37;
+    color: #f4e4c1;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
 }
