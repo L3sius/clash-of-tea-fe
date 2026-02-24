@@ -65,13 +65,16 @@
 
                 <!-- Live Feed Tab -->
                 <div v-show="activeTab === 'live'" class="content-section">
-                    <div class="feed-filter">
-                        <button class="filter-pill" :class="{ active: feedTeamFilter === null }"
-                            @click="feedTeamFilter = null">All</button>
-                        <button v-for="team in teams" :key="team.id" class="filter-pill"
-                            :class="{ active: feedTeamFilter === team.name }" @click="feedTeamFilter = team.name">{{
-                                team.name
-                            }}</button>
+                    <div class="feed-filter-row">
+                        <div class="feed-filter">
+                            <button class="filter-pill" :class="{ active: feedTeamFilter === null }"
+                                @click="feedTeamFilter = null">All</button>
+                            <button v-for="team in teams" :key="team.id" class="filter-pill"
+                                :class="{ active: feedTeamFilter === team.name }" @click="feedTeamFilter = team.name">{{
+                                    team.name
+                                }}</button>
+                        </div>
+                        <button class="popout-btn" @click="openPopout" title="Open in popup window">⧉</button>
                     </div>
 
                     <div v-if="filteredFeed.length === 0" class="empty-state">
@@ -424,6 +427,17 @@ export default {
                     relativeTime: this.formatRelativeTime(e.timestamp),
                 }));
             }, 30000);
+        },
+
+        // ── Live feed popout ──
+        openPopout() {
+            const team = this.feedTeamFilter ?? '';
+            const url = team ? `/live-feed?team=${encodeURIComponent(team)}` : '/live-feed';
+            window.open(
+                url,
+                'liveFeedPopup',
+                'width=420,height=700,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no'
+            );
         },
 
         // ── Buildings tab helpers ──
