@@ -35,7 +35,7 @@
 
         <!-- Team Stats Panel - TOP LEFT -->
         <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" :start-collapsed="teamStatsCollapsed"
-            :team-resources="teamResources" @collapsed-changed="onTeamStatsCollapsed" />
+            :team-resources="teamResources" :buildings="buildings" @collapsed-changed="onTeamStatsCollapsed" />
 
         <!-- Team Selection - BOTTOM RIGHT -->
         <TeamSelection :teams="teams" :initial-team-id="selectedTeamId" :start-collapsed="teamSelCollapsed"

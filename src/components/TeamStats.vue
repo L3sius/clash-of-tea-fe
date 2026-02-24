@@ -70,7 +70,7 @@
                             @click="feedTeamFilter = null">All</button>
                         <button v-for="team in teams" :key="team.id" class="filter-pill"
                             :class="{ active: feedTeamFilter === team.name }" @click="feedTeamFilter = team.name">{{
-                            team.name
+                                team.name
                             }}</button>
                     </div>
 
@@ -129,6 +129,63 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Buildings Tab -->
+                <div v-show="activeTab === 'buildings'" class="content-section">
+                    <div v-if="!buildings || buildings.length === 0" class="empty-state">
+                        <div class="empty-icon">🏰</div>
+                        <p>No buildings data available</p>
+                    </div>
+                    <div v-else-if="buildingsForTab.length === 0" class="empty-state">
+                        <div class="empty-icon">🏰</div>
+                        <p>No buildings for selected team</p>
+                    </div>
+                    <div v-else class="buildings-tab-list">
+                        <div v-for="building in buildingsForTab" :key="building.id ?? building.name"
+                            class="building-tab-item">
+
+                            <!-- Building header: name + level -->
+                            <div class="building-tab-header">
+                                <span class="building-tab-name">{{ building.name }}</span>
+                                <span class="building-tab-level"
+                                    :class="building.level > 0 ? 'level--upgraded' : 'level--zero'">
+                                    Lvl {{ building.level }}
+                                </span>
+                            </div>
+
+                            <!-- Max level -->
+                            <div v-if="!building.upgradable" class="building-tab-maxed">
+                                🏆 Max level
+                            </div>
+
+                            <!-- Upgrade options with owned/required counts -->
+                            <div v-else-if="building.upgradeOptions && building.upgradeOptions.length"
+                                class="building-tab-options">
+                                <div v-for="option in building.upgradeOptions" :key="option.optionId"
+                                    class="building-tab-option"
+                                    :class="{ 'option--fulfilled': isTabOptionFulfilled(option, building.teamId) }">
+                                    <span class="building-tab-option-label">{{ option.optionId }}</span>
+                                    <div class="building-tab-reqs">
+                                        <span v-for="(req, i) in option.requirements" :key="i" class="building-tab-req"
+                                            :class="isTabReqFulfilled(req, building.teamId) ? 'req--met' : 'req--unmet'">
+                                            <span class="req-name">{{ req.name }}</span>
+                                            <span class="req-tier" :data-tier="req.tier">T{{ req.tier }}</span>
+                                            <span class="req-progress">
+                                                {{ getOwnedQtyForTab(req, building.teamId) }}/{{ req.quantity }}
+                                            </span>
+                                            <span v-if="i < option.requirements.length - 1" class="req-sep">+</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-else class="building-tab-no-options">
+                                No upgrade path defined
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -146,6 +203,7 @@ export default {
         teams: { type: Array, required: true },
         startCollapsed: { type: Boolean, default: null },
         teamResources: { type: Array, default: () => [] },
+        buildings: { type: Array, default: () => [] },
     },
     data() {
         const isMobile = window.innerWidth <= 768;
@@ -156,6 +214,7 @@ export default {
                 { id: 'resources', label: 'Resources', icon: '💎' },
                 { id: 'live', label: 'Live Feed', icon: '⚡' },
                 { id: 'latest', label: 'Latest', icon: '📜' },
+                { id: 'buildings', label: 'Buildings', icon: '🏰' },
             ],
             selectedSource: cacheGet('statsSelectedSource', null),
             liveFeed: [],
@@ -190,6 +249,13 @@ export default {
             if (!this.upgradeTeamFilter) return this.upgradeFeed;
             return this.upgradeFeed.filter(e => e.teamName === this.upgradeTeamFilter);
         },
+        buildingsForTab() {
+            if (!this.selectedTeamId) return [];
+            return this.buildings
+                .filter(b => b.teamId === this.selectedTeamId)
+                .slice()
+                .sort((a, b) => a.name.localeCompare(b.name));
+        },
     },
     watch: {
         selectedTeamId: {
@@ -198,7 +264,6 @@ export default {
                 if (!newTeamId) return;
                 this.syncSelectedSource();
                 if (!oldTeamId) {
-                    // First load — open streams
                     this.liveFeed = [];
                     this.upgradeFeed = [];
                     this.connectStream();
@@ -206,7 +271,6 @@ export default {
                 }
             },
         },
-        // Re-sync source selection when the prop data arrives (async from Map.vue)
         currentTeamResources(resources) {
             if (!this.selectedSource || !resources.some(r => r.source === this.selectedSource)) {
                 this.syncSelectedSource();
@@ -360,6 +424,25 @@ export default {
                     relativeTime: this.formatRelativeTime(e.timestamp),
                 }));
             }, 30000);
+        },
+
+        // ── Buildings tab helpers ──
+        getOwnedQtyForTab(req, teamId) {
+            const teamIdToUse = teamId ?? this.selectedTeamId;
+            const teamData = this.teamResources.find(t => t.teamId === teamIdToUse);
+            if (!teamData) return 0;
+            const source = teamData.resources.find(
+                r => r.source.toLowerCase() === req.name.toLowerCase()
+            );
+            if (!source) return 0;
+            const tierEntry = source.tiers.find(t => t.tier === req.tier);
+            return tierEntry ? tierEntry.quantity : 0;
+        },
+        isTabReqFulfilled(req, teamId) {
+            return this.getOwnedQtyForTab(req, teamId) >= req.quantity;
+        },
+        isTabOptionFulfilled(option, teamId) {
+            return option.requirements.every(req => this.isTabReqFulfilled(req, teamId));
         },
     },
     beforeUnmount() {
