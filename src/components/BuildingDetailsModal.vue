@@ -1,6 +1,14 @@
 <template>
     <transition name="modal-fade">
         <div v-if="building" class="modal-overlay" @click.self="close">
+
+            <!-- Tier tooltip teleported to body -->
+            <Teleport to="body">
+                <div v-if="tierTooltip.visible" class="tier-tooltip"
+                    :style="{ top: tierTooltip.y + 'px', left: tierTooltip.x + 'px' }">
+                    {{ tierTooltip.text }}
+                </div>
+            </Teleport>
             <div class="modal-content" ref="modalContent"
                 :style="swipeDelta > 0 ? { transform: `translateY(${swipeDelta}px)`, transition: 'none' } : {}"
                 @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
@@ -52,8 +60,9 @@
                                             </span>
                                         </div>
                                         <div class="requirement-details">
-                                            <span class="tier-badge" :class="`tier-${req.tier}`">Tier {{ req.tier
-                                                }}</span>
+                                            <span class="tier-badge" :class="`tier-${req.tier}`"
+                                                @mouseenter="showTierTooltip($event, req.tier)"
+                                                @mouseleave="tierTooltip.visible = false">Tier {{ req.tier }}</span>
                                             <span class="quantity"
                                                 :class="isReqFulfilled(req) ? 'quantity--met' : 'quantity--unmet'">
                                                 {{ getOwnedQty(req) }}/{{ req.quantity }}
@@ -112,6 +121,7 @@ export default {
             swipeDelta: 0,
             touchStartY: 0,
             touchStartTime: 0,
+            tierTooltip: { visible: false, text: '', x: 0, y: 0 },
         };
     },
     watch: {
@@ -163,8 +173,60 @@ export default {
         openBuilding(buildingName) {
             this.$emit('open-building', buildingName);
         },
+        tierLabel(tier) {
+            const ranges = {
+                1: '1K - 10K GP',
+                2: '10K - 25K GP',
+                3: '25K - 50K GP',
+                4: '50K - 100K GP',
+                5: '100K - 250K GP',
+                6: '250K - 1M GP',
+                7: '1M - 10M GP',
+                8: '10M - 50M GP',
+                9: '50M+ GP',
+            };
+            return ranges[tier] ?? `Tier ${tier}`;
+        },
+        showTierTooltip(event, tier) {
+            const rect = event.target.getBoundingClientRect();
+            this.tierTooltip = {
+                visible: true,
+                text: this.tierLabel(tier),
+                x: rect.left + rect.width / 2,
+                y: rect.top,
+            };
+        },
     }
 }
 </script>
 
 <style scoped src="@/assets/buildingDetailsModal.css"></style>
+
+<!-- Unscoped: targets the teleported tooltip rendered on <body> -->
+<style>
+.tier-tooltip {
+    position: fixed;
+    transform: translate(-50%, calc(-100% - 8px));
+    background: linear-gradient(135deg, rgba(40, 30, 20, 0.98), rgba(30, 20, 15, 0.98));
+    border: 1px solid #8b7355;
+    border-radius: 4px;
+    padding: 0.4rem 0.7rem;
+    color: #f4e4c1;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 99999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.tier-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #8b7355;
+}
+</style>

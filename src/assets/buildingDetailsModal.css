@@ -87,12 +87,12 @@
 }
 
 .upgrade-col {
-    flex: 0 0 50%;
+    flex: 0 0 60%;
     min-width: 0;
 }
 
 .building-image-col {
-    flex: 0 0 50%;
+    flex: 0 0 40%;
     display: flex;
     align-items: center;
     justify-content: center;
