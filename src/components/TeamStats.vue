@@ -172,7 +172,10 @@
                                         <span v-for="(req, i) in option.requirements" :key="i" class="building-tab-req"
                                             :class="isTabReqFulfilled(req, building.teamId) ? 'req--met' : 'req--unmet'">
                                             <span class="req-name">{{ req.name }}</span>
-                                            <span class="req-tier" :data-tier="req.tier">T{{ req.tier }}</span>
+                                            <span class="req-tier" :data-tier="req.tier"
+                                                @mouseenter="showTooltip($event, tierLabel(req.tier))"
+                                                @mouseleave="hideTooltip()">T{{
+                                                req.tier }}</span>
                                             <span class="req-progress">
                                                 {{ getOwnedQtyForTab(req, building.teamId) }}/{{ req.quantity }}
                                             </span>

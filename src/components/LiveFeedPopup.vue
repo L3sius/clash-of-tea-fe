@@ -1,5 +1,11 @@
 <template>
     <div class="popup-root">
+        <!-- Tooltip teleported to body - fully escapes all stacking contexts -->
+        <Teleport to="body">
+            <div v-if="tooltip.visible" class="livefeed-tooltip" :class="'livefeed-tooltip--' + tooltip.placement"
+                :style="{ top: tooltip.y + 'px', left: tooltip.x + 'px' }">{{ tooltip.text }}</div>
+        </Teleport>
+
         <div class="popup-header">
             <span class="popup-title">⚡ Live Feed</span>
             <span class="popup-count">{{ filteredFeed.length }} events</span>
@@ -23,8 +29,12 @@
                 <div class="item-dot" :class="entry.success ? 'dot-success' : 'dot-fail'"></div>
                 <div class="item-body">
                     <div class="item-line">
-                        <span class="item-player">{{ entry.player }}</span>
-                        <span v-if="entry.source" class="item-source">{{ entry.source }}</span>
+                        <span class="item-player"
+                            @mouseenter="showFeedTooltip($event, entry.player, entry.team ? 'Team: ' + entry.team : null)"
+                            @mouseleave="hideTooltip">{{ entry.player }}</span>
+                        <span v-if="entry.source" class="item-source"
+                            @mouseenter="showFeedTooltip($event, entry.source, entry.monster ? 'Source: ' + entry.monster : null)"
+                            @mouseleave="hideTooltip">{{ entry.source }}</span>
                     </div>
                     <div class="item-meta">
                         <span v-if="entry.rewards.length" class="item-rewards">
@@ -52,6 +62,7 @@ export default {
             liveFeed: [],
             eventSource: null,
             timeUpdateInterval: null,
+            tooltip: { visible: false, text: '', x: 0, y: 0, placement: 'top' },
         };
     },
     computed: {
@@ -61,14 +72,12 @@ export default {
         },
     },
     async created() {
-        // Read pre-selected team from query param
         const params = new URLSearchParams(window.location.search);
         const teamParam = params.get('team');
 
         try {
             const data = await apiService.getTeams();
             this.teams = data.teams.map(t => ({ id: t.id, name: t.name }));
-            // Apply filter only if the team actually exists
             if (teamParam && this.teams.some(t => t.name === teamParam)) {
                 this.teamFilter = teamParam;
             }
@@ -77,8 +86,6 @@ export default {
         }
 
         this.connectStream();
-
-        // Set window title dynamically
         document.title = this.teamFilter ? `Live Feed — ${this.teamFilter}` : 'Live Feed';
     },
     beforeUnmount() {
@@ -146,6 +153,30 @@ export default {
             if (diff < 60) return `${diff}s ago`;
             if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
             return `${Math.floor(diff / 3600)}h ago`;
+        },
+        showTooltip(event, text, placement = 'top') {
+            const rect = event.target.getBoundingClientRect();
+            this.tooltip = {
+                visible: true,
+                text,
+                placement,
+                x: placement === 'right' ? rect.right : rect.left + rect.width / 2,
+                y: placement === 'right' ? rect.top + rect.height / 2 : rect.top,
+            };
+        },
+        showFeedTooltip(event, fullText, fallbackText) {
+            const el = event.target;
+            if (el.scrollWidth > el.clientWidth) {
+                // Text is truncated — show full text above
+                this.showTooltip(event, fullText, 'top');
+            } else if (fallbackText) {
+                // Context label (Team / Source) — always show to the right
+                // so it never escapes the top of the popup window
+                this.showTooltip(event, fallbackText, 'right');
+            }
+        },
+        hideTooltip() {
+            this.tooltip.visible = false;
         },
     },
 };
@@ -346,6 +377,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: default;
 }
 
 .item-source {
@@ -355,6 +387,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
+    cursor: default;
 }
 
 .item-meta {
@@ -460,5 +493,54 @@ body {
         opacity: 1;
         transform: translateX(0);
     }
+}
+</style>
+
+<!-- Unscoped: targets the teleported tooltip rendered on <body> -->
+<style>
+.livefeed-tooltip {
+    position: fixed;
+    background: linear-gradient(135deg, rgba(40, 30, 20, 0.98), rgba(30, 20, 15, 0.98));
+    border: 1px solid #8b7355;
+    border-radius: 4px;
+    padding: 0.4rem 0.7rem;
+    color: #f4e4c1;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 0.75rem;
+    white-space: pre-line;
+    text-align: center;
+    pointer-events: none;
+    z-index: 99999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Top placement (default) ── */
+.livefeed-tooltip--top {
+    transform: translate(-50%, calc(-100% - 8px));
+}
+
+.livefeed-tooltip--top::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #8b7355;
+}
+
+/* ── Right placement (when near top of viewport) ── */
+.livefeed-tooltip--right {
+    transform: translate(8px, -50%);
+}
+
+.livefeed-tooltip--right::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    transform: translateY(-50%);
+    border: 4px solid transparent;
+    border-right-color: #8b7355;
 }
 </style>
