@@ -277,6 +277,28 @@ export default {
         await this.loadTeams();
         await Promise.all([this.loadBuildings(), this.loadPlayerStats()]);
     },
+    mounted() {
+        if (window.innerWidth <= 768) {
+            this._prevBodyOverflow = document.body.style.overflow;
+            this._prevBodyHeight = document.body.style.height;
+            this._prevHtmlOverflow = document.documentElement.style.overflow;
+            this._prevHtmlHeight = document.documentElement.style.height;
+
+            document.body.style.overflow = 'auto';
+            document.body.style.height = 'auto';
+            document.documentElement.style.overflow = 'auto';
+            document.documentElement.style.height = 'auto';
+        }
+    },
+    beforeUnmount() {
+        // Restore whatever was there before when leaving this page.
+        if (this._prevBodyOverflow !== undefined) {
+            document.body.style.overflow = this._prevBodyOverflow;
+            document.body.style.height = this._prevBodyHeight;
+            document.documentElement.style.overflow = this._prevHtmlOverflow;
+            document.documentElement.style.height = this._prevHtmlHeight;
+        }
+    },
     methods: {
         async loadTeams() {
             try {

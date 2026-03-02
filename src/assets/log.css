@@ -1,19 +1,21 @@
-/* Main Page Container */
+/* ============================================================
+   DESKTOP — unchanged viewport-panel layout
+   MOBILE  — plain document flow, body scrolls
+   ============================================================ */
+
+/* ── Page wrapper ── */
 .log-page {
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background: linear-gradient(135deg, #1a1410 0%, #2a2520 50%, #1a1410 100%);
     padding: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    box-sizing: border-box;
 }
 
-/* Log Container - Three Column Layout */
+/* ── Three-column grid ── */
 .log-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -24,7 +26,7 @@
     max-height: 850px;
 }
 
-/* Log Sections */
+/* ── Panel cards ── */
 .log-section {
     background: linear-gradient(135deg, rgba(40, 30, 20, 0.95), rgba(30, 20, 15, 0.98));
     border: 3px solid #8b7355;
@@ -53,7 +55,7 @@
     opacity: 0.5;
 }
 
-/* Section Headers */
+/* ── Section header ── */
 .section-header {
     display: flex;
     align-items: center;
@@ -75,7 +77,7 @@
     margin-bottom: 1rem;
 }
 
-/* Teams & Roster */
+/* ── Inner scroll areas (desktop) ── */
 .teams-scroll {
     flex: 1;
     overflow-y: auto;
@@ -83,6 +85,53 @@
     padding-right: 0.5rem;
 }
 
+.stats-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 0.5rem;
+}
+
+.building-mvp-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 0.5rem;
+}
+
+/* ── Custom scrollbars ── */
+.teams-scroll::-webkit-scrollbar,
+.stats-scroll::-webkit-scrollbar,
+.building-mvp-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.teams-scroll::-webkit-scrollbar-track,
+.stats-scroll::-webkit-scrollbar-track,
+.building-mvp-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.teams-scroll::-webkit-scrollbar-thumb,
+.stats-scroll::-webkit-scrollbar-thumb,
+.building-mvp-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.teams-scroll::-webkit-scrollbar-thumb:hover,
+.stats-scroll::-webkit-scrollbar-thumb:hover,
+.building-mvp-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.teams-scroll,
+.stats-scroll,
+.building-mvp-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(0, 0, 0, 0.2);
+}
+
+/* ── Team blocks ── */
 .team-block {
     margin-bottom: 1.5rem;
     padding: 1rem;
@@ -129,91 +178,13 @@
     font-style: italic;
 }
 
-.player-marker {
-    color: #d4af37;
-    font-size: 0.8rem;
-}
-
-.player-name {
-    color: #c9b896;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    text-align: right;
-}
-
-/* Loading State */
-.loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 2rem;
-    gap: 1rem;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.loading-spinner {
-    font-size: 2.5rem;
-    animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* Custom Scrollbar Styling */
-.teams-scroll::-webkit-scrollbar,
-.stats-scroll::-webkit-scrollbar,
-.building-mvp-scroll::-webkit-scrollbar {
-    width: 8px;
-}
-
-.teams-scroll::-webkit-scrollbar-track,
-.stats-scroll::-webkit-scrollbar-track,
-.building-mvp-scroll::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-}
-
-.teams-scroll::-webkit-scrollbar-thumb,
-.stats-scroll::-webkit-scrollbar-thumb,
-.building-mvp-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    transition: background 0.2s;
-}
-
-.teams-scroll::-webkit-scrollbar-thumb:hover,
-.stats-scroll::-webkit-scrollbar-thumb:hover,
-.building-mvp-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.35);
-}
-
-/* Firefox scrollbar styling */
-.teams-scroll,
-.stats-scroll,
-.building-mvp-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(0, 0, 0, 0.2);
-}
-
-/* Two Column Layout for Players */
+/* ── Players list ── */
 .players-list.two-column {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.25rem 1rem;
 }
 
-/* Player Group Styling */
 .player-group {
     margin-bottom: 0.25rem;
     position: relative;
@@ -245,7 +216,22 @@
     border-radius: 4px;
 }
 
-/* Alt Badge */
+.player-marker {
+    color: #d4af37;
+    font-size: 0.8rem;
+}
+
+.player-name {
+    color: #c9b896;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    text-align: right;
+}
+
+/* ── Alt badge ── */
 .alt-badge {
     display: inline-flex;
     align-items: center;
@@ -261,7 +247,7 @@
     flex-shrink: 0;
 }
 
-/* Tooltip Styling */
+/* ── Tooltip ── */
 .player-tooltip {
     position: fixed;
     background: rgba(20, 20, 30, 0.98);
@@ -298,7 +284,7 @@
     color: rgba(255, 255, 255, 0.9);
 }
 
-/* Filter Tabs */
+/* ── Filter tabs ── */
 .stats-filter-tabs {
     display: flex;
     gap: 0.5rem;
@@ -327,10 +313,10 @@
 .filter-tab.active {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 1);
+    color: #fff;
 }
 
-/* Sort Toggle */
+/* ── Sort toggle ── */
 .sort-toggle {
     padding: 0 0.5rem;
     margin-bottom: 0.75rem;
@@ -357,13 +343,7 @@
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Player Stats Section */
-.stats-scroll {
-    max-height: calc(100% - 120px);
-    overflow-y: auto;
-    padding: 0 0.5rem;
-}
-
+/* ── Stat items ── */
 .stat-item {
     display: flex;
     align-items: center;
@@ -434,13 +414,7 @@
     min-width: 4rem;
 }
 
-/* Building MVPs Section */
-.building-mvp-scroll {
-    max-height: calc(100% - 80px);
-    overflow-y: auto;
-    padding: 0 0.5rem;
-}
-
+/* ── Building MVP items ── */
 .building-mvp-item {
     display: flex;
     flex-direction: row;
@@ -461,41 +435,10 @@
     border-color: rgba(255, 255, 255, 0.15);
 }
 
-.building-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 .building-name {
     font-weight: 600;
     font-size: 0.95rem;
     color: rgba(255, 255, 255, 0.9);
-}
-
-.mvp-info {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: nowrap;
-    overflow: hidden;
-}
-
-.mvp-player {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.95);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 1;
-    min-width: 0;
 }
 
 .mvp-team {
@@ -519,7 +462,33 @@
     font-style: italic;
 }
 
-/* ── Buildings List (roster view) ── */
+/* ── Loading state ── */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.loading-spinner {
+    font-size: 2.5rem;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Buildings list ── */
 .buildings-list {
     display: flex;
     flex-direction: column;
@@ -622,63 +591,138 @@
     font-style: italic;
 }
 
-/* Responsive Design */
+
+/* ══════════════════════════════════════════════════════
+   TABLET  ≤ 1200px
+   ══════════════════════════════════════════════════════ */
 @media (max-width: 1200px) {
     .log-container {
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto;
-    }
-}
-
-@media (max-width: 768px) {
-    .log-page {
-        position: absolute;
-        height: auto;
-        min-height: 100vh;
-        width: 100vw;
-        max-width: 380px;
-        padding: 0;
-    }
-
-    .log-container {
-        grid-template-columns: 1fr;
-        gap: 1rem;
         height: auto;
         max-height: none;
-        width: auto;
     }
 
     .log-section {
+        min-height: 400px;
+        max-height: 600px;
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════
+   MOBILE  ≤ 768px
+
+   The viewport-panel model is completely abandoned.
+   Everything becomes normal block-flow so the browser's
+   native body scroll works. The JS in mounted() unlocks
+   html/body overflow; this CSS handles the layout.
+   ══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    /* Page: normal block, not a flex viewport centring container */
+    .log-page {
+        display: block;
+        min-height: 100vh;
+        height: auto;
         padding: 1rem;
+        /* keep the dark bg but let it stretch to content */
+        background: linear-gradient(135deg, #1a1410 0%, #2a2520 50%, #1a1410 100%);
+    }
+
+    /* Grid → single stacked column, completely auto height */
+    .log-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        height: auto;
         max-height: none;
-        min-height: 500px;
     }
 
+    /* Each panel: auto height, NOT overflow:hidden */
+    .log-section {
+        display: block;
+        /* drop flex so height shrinks to content */
+        height: auto;
+        min-height: unset;
+        max-height: none;
+        overflow: visible;
+        /* no clipping */
+        padding: 1rem;
+    }
+
+    /* The ::before pseudo-border still works with overflow:visible */
+
+    /* Inner "scroll" containers become plain blocks */
+    .teams-scroll,
+    .stats-scroll,
+    .building-mvp-scroll {
+        display: block;
+        overflow: visible;
+        height: auto;
+        max-height: none;
+        flex: none;
+        padding: 0;
+    }
+
+    /* Typography */
     .section-title {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
 
-    .players-list {
+    .team-name {
+        font-size: 1rem;
+    }
+
+    /* Single-column players */
+    .players-list.two-column {
         grid-template-columns: 1fr;
+    }
+
+    /* Filter tabs */
+    .stats-filter-tabs {
+        padding: 0;
+        gap: 0.4rem;
+    }
+
+    .filter-tab {
+        padding: 0.5rem 0.4rem;
+        font-size: 0.8rem;
+    }
+
+    /* Building MVP rows: wrap text, no clipping */
+    .building-mvp-item {
+        flex-wrap: wrap;
+        white-space: normal;
+        overflow: visible;
+        gap: 0.3rem;
+    }
+
+    .building-name {
+        width: 100%;
+        font-size: 0.85rem;
+        margin-bottom: 0.1rem;
+    }
+
+    .mvp-value {
+        margin-left: 0;
     }
 }
 
 @media (max-width: 480px) {
     .log-page {
-        padding: 0.5rem;
-        position: absolute;
+        padding: 0.75rem;
     }
 
     .log-section {
         padding: 0.75rem;
-        min-height: 450px;
     }
 
     .section-title {
         font-size: 1rem;
     }
 
-    .team-name {
-        font-size: 0.9rem;
+    .filter-tab {
+        font-size: 0.75rem;
     }
 }
