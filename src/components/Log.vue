@@ -182,7 +182,7 @@
                                 building.mvp.teamName }}</span>
                             <span class="mvp-value">
                                 <template v-if="buildingFilter === 'value'">{{ formatValue(building.mvp.value)
-                                    }}</template>
+                                }}</template>
                                 <template v-else>{{ building.mvp.drops }} drops</template>
                             </span>
                         </template>
@@ -278,8 +278,6 @@ export default {
         await Promise.all([this.loadBuildings(), this.loadPlayerStats()]);
     },
     mounted() {
-        // On mobile, unlock body/html so the page can scroll naturally.
-        // We store the original values and restore them on unmount.
         if (window.innerWidth <= 768) {
             this._prevBodyOverflow = document.body.style.overflow;
             this._prevBodyHeight = document.body.style.height;
