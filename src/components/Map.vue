@@ -40,9 +40,6 @@
         <!-- Team Selection - BOTTOM RIGHT -->
         <TeamSelection :teams="teams" :initial-team-id="selectedTeamId" :start-collapsed="teamSelCollapsed"
             @team-selected="handleTeamSelected" @collapsed-changed="onTeamSelCollapsed" />
-
-        <!-- Compass Navigation - BOTTOM LEFT -->
-        <CompassNavigation :start-collapsed="compassCollapsed" />
     </div>
 </template>
 
@@ -87,7 +84,6 @@ export default {
             scrollHintFading: false,
             teamStatsCollapsed: cacheGet('panel:teamStats', window.innerWidth <= 768),
             teamSelCollapsed: cacheGet('panel:teamSelection', window.innerWidth <= 768),
-            compassCollapsed: cacheGet('panel:compass', window.innerWidth <= 768),
             resourceChangeEventSource: null,
         }
     },

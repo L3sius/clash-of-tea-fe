@@ -90,7 +90,7 @@ export default {
         }
     },
     emits: ['collapsed-changed'],
-    setup({ emit }) {
+    setup(_props, { emit }) {
         const route = useRoute();
 
         const isMobileDevice = window.innerWidth <= 768;

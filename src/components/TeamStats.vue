@@ -5,6 +5,21 @@
             <div v-if="tooltip.visible" class="teamstats-tooltip"
                 :style="{ top: tooltip.y + 'px', left: tooltip.x + 'px' }">{{ tooltip.text }}</div>
         </Teleport>
+
+        <!-- Mobile tab dropdown menu, teleported so it escapes the panel's overflow:hidden -->
+        <Teleport to="body">
+            <div v-if="tabDropdownOpen" class="tab-dropdown-menu" :style="{
+                top: tabDropdownPos.top + 'px',
+                left: tabDropdownPos.left + 'px',
+                width: tabDropdownPos.width + 'px'
+            }">
+                <button v-for="tab in tabs" :key="tab.id" class="tab-dropdown-option"
+                    :class="{ active: activeTab === tab.id }" @click="selectTab(tab.id)">
+                    <span class="tab-icon">{{ tab.icon }}</span>
+                    <span>{{ tab.label }}</span>
+                </button>
+            </div>
+        </Teleport>
         <button v-if="isCollapsed" class="expand-btn" @click="toggleCollapse" title="Expand Team Stats">
             <span class="hamburger-icon">☰</span>
             <span class="expand-label">Team Stats</span>
@@ -23,7 +38,7 @@
             </div>
             <div class="header-ornament"></div>
 
-            <!-- Tab Navigation -->
+            <!-- Tab Navigation (desktop: button row) -->
             <div class="tab-nav">
                 <button v-for="tab in tabs" :key="tab.id" class="tab-btn" :class="{ active: activeTab === tab.id }"
                     @click="activeTab = tab.id">
@@ -31,6 +46,13 @@
                     <span class="tab-label">{{ tab.label }}</span>
                 </button>
             </div>
+
+            <!-- Tab Navigation (mobile: dropdown, hidden on desktop via CSS) -->
+            <button class="tab-dropdown-trigger" :class="{ open: tabDropdownOpen }" @click="toggleTabDropdown($event)">
+                <span class="tab-icon">{{ activeTabInfo.icon }}</span>
+                <span class="tab-label">{{ activeTabInfo.label }}</span>
+                <span class="dropdown-caret">▾</span>
+            </button>
 
             <!-- Tab Content -->
             <div class="tab-content">
@@ -42,23 +64,29 @@
                         <p>No resources data available</p>
                     </div>
                     <template v-else>
-                        <!-- Building Selector -->
-                        <div class="building-selector">
-                            <button v-for="resource in currentTeamResources" :key="resource.source"
-                                class="building-pill" :class="{ active: selectedSource === resource.source }"
-                                @click="selectedSource = resource.source">
-                                {{ resource.source }}
-                            </button>
-                        </div>
-
-                        <!-- Inventory Grid -->
-                        <div v-if="selectedResource" class="inventory-grid">
-                            <div v-for="tier in selectedResource.tiers" :key="tier.tier" class="tier-card"
-                                :class="{ empty: tier.quantity === 0 }" :data-tier="tier.tier"
-                                @mouseenter="showTooltip($event, tierLabel(tier.tier))" @mouseleave="hideTooltip()">
-                                <span class="tier-card__label">Tier {{ tier.tier }}</span>
-                                <span class="tier-card__value">{{ tier.quantity }}</span>
-                            </div>
+                        <!-- Resource Table: buildings as rows, tiers as columns -->
+                        <div class="resource-table-wrap">
+                            <table class="resource-table">
+                                <thead>
+                                    <tr>
+                                        <th class="resource-table__name-col">Building</th>
+                                        <th v-for="n in 9" :key="n" :data-tier="n"
+                                            @mouseenter="showTooltip($event, tierLabel(n))" @mouseleave="hideTooltip()">
+                                            T{{ n }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="resource in currentTeamResources" :key="resource.source">
+                                        <td class="resource-table__name-col">{{ resource.source }}</td>
+                                        <td v-for="tier in resource.tiers" :key="tier.tier" :data-tier="tier.tier"
+                                            :class="{ empty: tier.quantity === 0 }"
+                                            @mouseenter="showQtyTooltip($event, tier.quantity)" @mouseleave="hideTooltip()">
+                                            {{ formatQty(tier.quantity) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </template>
                 </div>
@@ -222,7 +250,6 @@ export default {
                 { id: 'latest', label: 'Latest', icon: '📜' },
                 { id: 'buildings', label: 'Buildings', icon: '🏰' },
             ],
-            selectedSource: cacheGet('statsSelectedSource', null),
             liveFeed: [],
             feedTeamFilter: null,
             eventSource: null,
@@ -230,9 +257,14 @@ export default {
             upgradeTeamFilter: null,
             upgradeEventSource: null,
             tooltip: { visible: false, text: '', x: 0, y: 0 },
+            tabDropdownOpen: false,
+            tabDropdownPos: { top: 0, left: 0, width: 0 },
         };
     },
     computed: {
+        activeTabInfo() {
+            return this.tabs.find(t => t.id === this.activeTab) || this.tabs[0];
+        },
         selectedTeamDisplayName() {
             if (!this.selectedTeamId) return 'No Team Selected';
             const team = this.teams.find(t => t.id === this.selectedTeamId);
@@ -242,10 +274,6 @@ export default {
             if (!this.selectedTeamId) return [];
             const teamData = this.teamResources.find(t => t.teamId === this.selectedTeamId);
             return teamData ? teamData.resources : [];
-        },
-        selectedResource() {
-            if (!this.selectedSource) return null;
-            return this.currentTeamResources.find(r => r.source === this.selectedSource) || null;
         },
         filteredFeed() {
             if (!this.feedTeamFilter) return this.liveFeed;
@@ -268,7 +296,6 @@ export default {
             immediate: true,
             handler(newTeamId, oldTeamId) {
                 if (!newTeamId) return;
-                this.syncSelectedSource();
                 if (!oldTeamId) {
                     this.liveFeed = [];
                     this.upgradeFeed = [];
@@ -277,32 +304,45 @@ export default {
                 }
             },
         },
-        currentTeamResources(resources) {
-            if (!this.selectedSource || !resources.some(r => r.source === this.selectedSource)) {
-                this.syncSelectedSource();
-            }
-        },
         activeTab(val) {
             cacheSet('statsActiveTab', val);
         },
-        selectedSource(val) {
-            if (val) cacheSet('statsSelectedSource', val);
-        },
     },
     methods: {
-        syncSelectedSource() {
-            const resources = this.currentTeamResources;
-            const cached = cacheGet('statsSelectedSource', null);
-            const isValid = cached && resources.some(r => r.source === cached);
-            this.selectedSource = isValid ? cached : (resources[0]?.source || null);
-        },
         toggleCollapse() {
             this.isCollapsed = !this.isCollapsed;
             this.$emit('collapsed-changed', this.isCollapsed);
         },
+        toggleTabDropdown(event) {
+            if (this.tabDropdownOpen) {
+                this.tabDropdownOpen = false;
+                return;
+            }
+            const rect = event.currentTarget.getBoundingClientRect();
+            this.tabDropdownPos = { top: rect.bottom + 6, left: rect.left, width: rect.width };
+            this.tabDropdownOpen = true;
+        },
+        selectTab(tabId) {
+            this.activeTab = tabId;
+            this.tabDropdownOpen = false;
+        },
+        handleOutsideTabDropdownClick(event) {
+            if (!this.tabDropdownOpen) return;
+            const target = event.target;
+            if (target.closest('.tab-dropdown-menu') || target.closest('.tab-dropdown-trigger')) return;
+            this.tabDropdownOpen = false;
+        },
         showTooltip(event, text) {
             const rect = event.target.getBoundingClientRect();
             this.tooltip = { visible: true, text, x: rect.left + rect.width / 2, y: rect.top };
+        },
+        formatQty(qty) {
+            if (qty < 1000) return qty;
+            return `${Math.round(qty / 1000)}K`;
+        },
+        showQtyTooltip(event, qty) {
+            if (qty < 1000) return;
+            this.showTooltip(event, qty.toLocaleString('en-US'));
         },
         showFeedTooltip(event, fullText, fallbackText) {
             const el = event.target;
@@ -462,7 +502,11 @@ export default {
             return option.requirements.every(req => this.isTabReqFulfilled(req, teamId));
         },
     },
+    mounted() {
+        document.addEventListener('click', this.handleOutsideTabDropdownClick);
+    },
     beforeUnmount() {
+        document.removeEventListener('click', this.handleOutsideTabDropdownClick);
         if (this.eventSource) this.eventSource.close();
         if (this.upgradeEventSource) this.upgradeEventSource.close();
         if (this.timeUpdateInterval) clearInterval(this.timeUpdateInterval);
@@ -473,8 +517,48 @@ export default {
 
 <style scoped src="@/assets/teamStats.css"></style>
 
-<!-- Unscoped: targets the teleported tooltip rendered on <body> -->
+<!-- Unscoped: targets teleported content rendered on <body> -->
 <style>
+.tab-dropdown-menu {
+    position: fixed;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.4rem;
+    background: linear-gradient(135deg, rgba(40, 30, 20, 0.98), rgba(25, 18, 12, 0.99));
+    border: 1px solid #8b7355;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.tab-dropdown-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.6rem;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: #c9b896;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab-dropdown-option:hover {
+    background: rgba(139, 115, 85, 0.2);
+    color: #f4e4c1;
+}
+
+.tab-dropdown-option.active {
+    background: rgba(212, 175, 55, 0.15);
+    color: #d4af37;
+    font-weight: bold;
+}
+
 .teamstats-tooltip {
     position: fixed;
     transform: translate(-50%, calc(-100% - 8px));

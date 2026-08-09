@@ -49,8 +49,11 @@
 
 /* Expanded State - Full Panel */
 .stats-panel {
-    width: 450px;
-    max-height: 600px;
+    /* Widened to comfortably fit the 2-column buildings grid and the resource table's tier columns */
+    width: 560px;
+    /* Capped relative to viewport height so the panel never grows tall enough to cover
+       the compass nav, which is fixed to the bottom-left corner */
+    max-height: min(730px, calc(100vh - 300px));
     background: linear-gradient(135deg, rgba(40, 30, 20, 0.95), rgba(30, 20, 15, 0.98));
     border: 3px solid #8b7355;
     border-radius: 12px;
@@ -218,6 +221,34 @@
     font-weight: bold;
 }
 
+/* Tab dropdown trigger — hidden on desktop, shown in its place on mobile
+   (see the max-width: 768px block below) */
+.tab-dropdown-trigger {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    width: calc(100% - 3rem);
+    margin: 1rem 1.5rem 0;
+    padding: 0.65rem 0.9rem;
+    background: rgba(60, 45, 30, 0.8);
+    border: 2px solid #d4af37;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-dropdown-trigger .tab-label {
+    flex: 1;
+    text-align: left;
+    color: #f4e4c1;
+    font-weight: bold;
+}
+
+.tab-dropdown-trigger .dropdown-caret {
+    font-size: 0.7rem;
+    color: #d4af37;
+}
+
 /* Tab Content */
 .tab-content {
     flex: 1;
@@ -249,124 +280,173 @@
     animation: fadeIn 0.3s ease;
 }
 
-/* ── Building Selector ── */
-.building-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 1.25rem;
-}
-
-.building-pill {
-    padding: 0.35rem 0.75rem;
-    background: rgba(20, 15, 10, 0.5);
-    border: 1px solid rgba(139, 115, 85, 0.35);
-    border-radius: 20px;
-    color: #c9b896;
-    font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.building-pill:hover {
-    border-color: rgba(139, 115, 85, 0.7);
-    color: #f4e4c1;
-    background: rgba(40, 30, 20, 0.6);
-}
-
-.building-pill.active {
-    background: linear-gradient(135deg, rgba(139, 115, 85, 0.35), rgba(139, 115, 85, 0.15));
-    border-color: #d4af37;
-    color: #f4e4c1;
-    box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
-}
-
-/* ── Inventory Grid ── */
-.inventory-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.6rem;
-}
-
-.tier-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    padding: 0.65rem 0.5rem;
-    background: rgba(20, 15, 10, 0.45);
-    border: 1px solid rgba(139, 115, 85, 0.4);
+/* ── Resource Table: buildings as rows, tiers as columns ── */
+.resource-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(139, 115, 85, 0.3);
     border-radius: 6px;
-    transition: all 0.2s ease;
+}
+
+.resource-table-wrap::-webkit-scrollbar {
+    height: 8px;
+}
+
+.resource-table-wrap::-webkit-scrollbar-track {
+    background: rgba(20, 15, 10, 0.4);
+}
+
+.resource-table-wrap::-webkit-scrollbar-thumb {
+    background: rgba(139, 115, 85, 0.5);
+    border-radius: 4px;
+}
+
+.resource-table {
+    /* `border-collapse: collapse` breaks `position: sticky` on table cells
+       in most browsers — the sticky building-name column wouldn't stay put
+       and other cells would render through it while scrolling */
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.resource-table th,
+.resource-table td {
+    padding: 0.5rem 0.6rem;
+    text-align: center;
+    white-space: nowrap;
+    border-bottom: 1px solid rgba(139, 115, 85, 0.2);
+}
+
+/* Reserve a stable width for tier values (e.g. "42K") so columns don't
+   jitter as live quantities cross the K-formatting threshold */
+.resource-table td:not(.resource-table__name-col) {
+    min-width: 4ch;
+}
+
+.resource-table thead th {
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+    color: #a89070;
+    background: rgba(20, 15, 10, 0.5);
+    border-bottom: 1px solid rgba(139, 115, 85, 0.4);
     cursor: help;
 }
 
-.tier-card:not(.empty):hover {
-    background: rgba(40, 30, 20, 0.6);
-    border-color: rgba(212, 175, 55, 0.5);
-}
-
-/* Dim zero-quantity tiers */
-.tier-card.empty {
-    opacity: 0.35;
-}
-
-.tier-card__label {
-    color: #a89070;
-    font-size: 0.75rem;
-    letter-spacing: 0.3px;
-    font-weight: bold;
-}
-
-/* Tier label colors — match FAQ tier badge colors */
-.tier-card[data-tier="1"] .tier-card__label {
+/* Tier header colors — match FAQ tier badge colors */
+.resource-table th[data-tier="1"] {
     color: #94a3b8;
 }
 
-.tier-card[data-tier="2"] .tier-card__label {
+.resource-table th[data-tier="2"] {
     color: #67e8f9;
 }
 
-.tier-card[data-tier="3"] .tier-card__label {
+.resource-table th[data-tier="3"] {
     color: #4ade80;
 }
 
-.tier-card[data-tier="4"] .tier-card__label {
+.resource-table th[data-tier="4"] {
     color: #86efac;
 }
 
-.tier-card[data-tier="5"] .tier-card__label {
+.resource-table th[data-tier="5"] {
     color: #fbbf24;
 }
 
-.tier-card[data-tier="6"] .tier-card__label {
+.resource-table th[data-tier="6"] {
     color: #fb923c;
 }
 
-.tier-card[data-tier="7"] .tier-card__label {
+.resource-table th[data-tier="7"] {
     color: #f87171;
 }
 
-.tier-card[data-tier="8"] .tier-card__label {
+.resource-table th[data-tier="8"] {
     color: #c084fc;
 }
 
-.tier-card[data-tier="9"] .tier-card__label {
+.resource-table th[data-tier="9"] {
     color: #ffd700;
 }
 
-.tier-card__value {
+.resource-table tbody td {
     color: white;
-    font-size: 1.3rem;
     font-weight: bold;
+    font-size: 0.85rem;
 }
 
-.tier-card.empty .tier-card__value {
+/* Tier value colors — match the header colors above */
+.resource-table td[data-tier="1"] {
+    color: #94a3b8;
+}
+
+.resource-table td[data-tier="2"] {
+    color: #67e8f9;
+}
+
+.resource-table td[data-tier="3"] {
+    color: #4ade80;
+}
+
+.resource-table td[data-tier="4"] {
+    color: #86efac;
+}
+
+.resource-table td[data-tier="5"] {
+    color: #fbbf24;
+}
+
+.resource-table td[data-tier="6"] {
+    color: #fb923c;
+}
+
+.resource-table td[data-tier="7"] {
+    color: #f87171;
+}
+
+.resource-table td[data-tier="8"] {
+    color: #c084fc;
+}
+
+.resource-table td[data-tier="9"] {
+    color: #ffd700;
+}
+
+/* Dim zero-quantity cells regardless of tier color */
+.resource-table tbody td.empty {
     color: #6b5744;
-    text-shadow: none;
+    font-weight: normal;
+}
+
+.resource-table tbody tr:hover td {
+    background: rgba(40, 30, 20, 0.5);
+}
+
+/* Building name column stays visible while tiers scroll horizontally */
+.resource-table__name-col {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    text-align: left;
+    color: #c9b896;
+    font-size: 0.8rem;
+    font-weight: normal;
+    background: #241c14;
+    box-shadow: 1px 0 0 rgba(139, 115, 85, 0.4);
+}
+
+/* `.resource-table thead th` (a more specific selector) would otherwise win
+   and put the translucent header background back on this sticky cell,
+   letting scrolled-under tier columns bleed through its text */
+.resource-table thead th.resource-table__name-col {
+    z-index: 2;
+    background: #241c14;
+}
+
+.resource-table tbody tr:hover .resource-table__name-col {
+    background: #2e2416;
 }
 
 /* Loading State */
@@ -915,11 +995,6 @@
     flex-shrink: 0;
 }
 
-/* ── Widen panel slightly to comfortably fit 2-column buildings grid ── */
-.stats-panel {
-    width: 520px;
-}
-
 @media (max-width: 768px) {
     .stats-panel {
         width: calc(100vw - 2rem);
@@ -991,13 +1066,16 @@
         font-size: 1.1rem;
     }
 
+    /* Swap the 4-button row for a single dropdown — not enough width on
+       mobile to keep all 4 tabs legible side by side */
     .tab-nav {
-        padding: 0.6rem 1rem 0;
-        gap: 0.3rem;
+        display: none;
     }
 
-    .tab-btn {
-        padding: 0.5rem 0.4rem;
+    .tab-dropdown-trigger {
+        display: flex;
+        width: calc(100% - 2rem);
+        margin: 0.6rem 1rem 0;
     }
 
     .tab-icon {
@@ -1012,8 +1090,10 @@
         padding: 0.85rem 1rem;
     }
 
-    .inventory-grid {
-        grid-template-columns: repeat(3, 1fr);
+    .resource-table th,
+    .resource-table td {
+        padding: 0.4rem 0.45rem;
+        font-size: 0.78rem;
     }
 
     .feed-item {

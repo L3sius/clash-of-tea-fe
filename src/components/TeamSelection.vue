@@ -16,10 +16,10 @@
 
             <div class="legend-content">
                 <div v-for="team in teams" :key="team.id" class="team-item"
-                    :class="{ 'selected': selectedTeamId === team.id }" @click="selectTeam(team.id)"
-                    @mouseenter="showTooltip($event, team.name)" @mouseleave="hideTooltip">
+                    :class="{ 'selected': selectedTeamId === team.id }" @click="selectTeam(team.id)">
                     <div class="team-marker"></div>
-                    <span class="team-name">{{ team.name }}</span>
+                    <span class="team-name" @mouseenter="showTooltip($event, team.name)"
+                        @mouseleave="hideTooltip">{{ team.name }}</span>
                 </div>
             </div>
         </div>
@@ -73,8 +73,9 @@ export default {
             this.$emit('collapsed-changed', this.isCollapsed);
         },
         showTooltip(event, name) {
-            if (name.length <= 18) return;
-            const rect = event.currentTarget.getBoundingClientRect();
+            const el = event.target;
+            if (el.scrollWidth <= el.clientWidth) return;
+            const rect = el.getBoundingClientRect();
             this.tooltip = {
                 visible: true,
                 text: name,
