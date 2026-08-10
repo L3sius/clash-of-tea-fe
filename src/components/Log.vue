@@ -192,6 +192,41 @@
             </div>
 
         </div>
+
+        <!-- Building Levels Matrix - full width, below the three-column grid -->
+        <div class="log-section building-levels-section">
+            <div class="section-header">
+                <h2 class="section-title">🏗️ Building Levels</h2>
+            </div>
+            <div class="section-ornament"></div>
+
+            <div v-if="isLoadingTeams || isLoadingBuildings" class="loading-state">
+                <div class="loading-spinner">⏳</div>
+                <p>Loading...</p>
+            </div>
+            <div v-else class="levels-table-wrap">
+                <table class="levels-table">
+                    <thead>
+                        <tr>
+                            <th class="levels-table__name-col">Team</th>
+                            <th v-for="name in buildingLevelColumns" :key="name">{{ name }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="row in buildingLevelRows" :key="row.teamId">
+                            <td class="levels-table__name-col">
+                                <span class="team-badge" :style="{ backgroundColor: getTeamColor(row.teamId) }"></span>
+                                {{ row.teamName }}
+                            </td>
+                            <td v-for="(level, i) in row.levels" :key="i" :data-tier="level"
+                                :class="{ empty: level === 0 }">
+                                {{ level }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -272,23 +307,39 @@ export default {
                 return { name: buildingName, mvp: mvpPlayer };
             });
         },
+        buildingLevelColumns() {
+            return [...new Set(this.buildings.map(b => b.name))].sort((a, b) => a.localeCompare(b));
+        },
+        buildingLevelRows() {
+            return this.teams.map(team => ({
+                teamId: team.id,
+                teamName: team.name,
+                levels: this.buildingLevelColumns.map(name => {
+                    const building = this.buildings.find(b => b.teamId === team.id && b.name === name);
+                    return building ? building.level : 0;
+                }),
+            }));
+        },
     },
     async created() {
         await this.loadTeams();
         await Promise.all([this.loadBuildings(), this.loadPlayerStats()]);
     },
     mounted() {
-        if (window.innerWidth <= 768) {
-            this._prevBodyOverflow = document.body.style.overflow;
-            this._prevBodyHeight = document.body.style.height;
-            this._prevHtmlOverflow = document.documentElement.style.overflow;
-            this._prevHtmlHeight = document.documentElement.style.height;
+        // `LiveFeedPopup.vue` sets a global (unscoped) `html, body { overflow: hidden }`
+        // that leaks into every route since Vite bundles all component styles into one
+        // stylesheet. It only ever mattered on mobile before (content routinely exceeds
+        // one viewport there); the Building Levels section means desktop can too now,
+        // so this unlock is no longer mobile-only.
+        this._prevBodyOverflow = document.body.style.overflow;
+        this._prevBodyHeight = document.body.style.height;
+        this._prevHtmlOverflow = document.documentElement.style.overflow;
+        this._prevHtmlHeight = document.documentElement.style.height;
 
-            document.body.style.overflow = 'auto';
-            document.body.style.height = 'auto';
-            document.documentElement.style.overflow = 'auto';
-            document.documentElement.style.height = 'auto';
-        }
+        document.body.style.overflow = 'auto';
+        document.body.style.height = 'auto';
+        document.documentElement.style.overflow = 'auto';
+        document.documentElement.style.height = 'auto';
     },
     beforeUnmount() {
         // Restore whatever was there before when leaving this page.

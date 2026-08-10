@@ -3,15 +3,20 @@
    MOBILE  — plain document flow, body scrolls
    ============================================================ */
 
-/* ── Page wrapper ── */
+/* ── Page wrapper ──
+   flex-column + top-aligned (not centered) because the page can now be
+   taller than one viewport once the building-levels section is added
+   below the three-column grid; centering an overflowing flex container
+   clips content from the top instead of letting you scroll to it. */
 .log-page {
     width: 100%;
     min-height: 100vh;
     background: linear-gradient(135deg, #1a1410 0%, #2a2520 50%, #1a1410 100%);
     padding: 2rem;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 1.5rem;
     box-sizing: border-box;
 }
 
@@ -591,6 +596,149 @@
     font-style: italic;
 }
 
+/* ── Building Levels Matrix: every team x every building, full width ── */
+.building-levels-section {
+    width: 100%;
+    max-width: 1600px;
+    flex-shrink: 0;
+}
+
+.levels-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(139, 115, 85, 0.3);
+    border-radius: 6px;
+}
+
+.levels-table-wrap::-webkit-scrollbar {
+    height: 8px;
+}
+
+.levels-table-wrap::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.levels-table-wrap::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.levels-table {
+    /* separate (not collapse): position:sticky on cells breaks under
+       border-collapse in most browsers */
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.levels-table th,
+.levels-table td {
+    padding: 0.5rem 0.6rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(139, 115, 85, 0.2);
+}
+
+.levels-table td:not(.levels-table__name-col) {
+    min-width: 2.5ch;
+}
+
+.levels-table thead th {
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+    color: #a89070;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(139, 115, 85, 0.4);
+    /* Wrap long building names onto two lines instead of truncating,
+       so columns stay narrow without needing a hover tooltip */
+    white-space: normal;
+    line-height: 1.25;
+    max-width: 90px;
+}
+
+.levels-table tbody td {
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* Level colors — same palette as the Resources tier table */
+.levels-table td[data-tier="1"] {
+    color: #94a3b8;
+}
+
+.levels-table td[data-tier="2"] {
+    color: #67e8f9;
+}
+
+.levels-table td[data-tier="3"] {
+    color: #4ade80;
+}
+
+.levels-table td[data-tier="4"] {
+    color: #86efac;
+}
+
+.levels-table td[data-tier="5"] {
+    color: #fbbf24;
+}
+
+.levels-table td[data-tier="6"] {
+    color: #fb923c;
+}
+
+.levels-table td[data-tier="7"] {
+    color: #f87171;
+}
+
+.levels-table td[data-tier="8"] {
+    color: #c084fc;
+}
+
+.levels-table td[data-tier="9"] {
+    color: #ffd700;
+}
+
+/* Dim level-0 (not-yet-started) cells regardless of tier color */
+.levels-table td.empty {
+    color: rgba(255, 255, 255, 0.25);
+    font-weight: normal;
+}
+
+.levels-table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Team name column stays visible while building columns scroll horizontally */
+.levels-table__name-col {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left;
+    white-space: nowrap;
+    color: #c9b896;
+    font-size: 0.85rem;
+    font-weight: normal;
+    background: #241c14;
+    box-shadow: 1px 0 0 rgba(139, 115, 85, 0.4);
+}
+
+/* `.levels-table thead th` is a more specific selector and would otherwise
+   win, putting the translucent header background back on this sticky cell */
+.levels-table thead th.levels-table__name-col {
+    z-index: 2;
+    background: #241c14;
+}
+
+.levels-table tbody tr:hover .levels-table__name-col {
+    background: #2e2416;
+}
+
 
 /* ══════════════════════════════════════════════════════
    TABLET  ≤ 1200px
@@ -605,6 +753,13 @@
     .log-section {
         min-height: 400px;
         max-height: 600px;
+    }
+
+    /* This section isn't one of the three grid columns — it's full width
+       and sized to its content, so it shouldn't inherit the cap above */
+    .building-levels-section {
+        min-height: unset;
+        max-height: none;
     }
 }
 
