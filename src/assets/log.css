@@ -655,6 +655,13 @@
     white-space: normal;
     line-height: 1.25;
     max-width: 90px;
+    cursor: help;
+}
+
+/* Full name by default; abbreviation only kicks in on narrow screens
+   (see max-width: 768px below) where columns get genuinely tight */
+.levels-table__abbr-name {
+    display: none;
 }
 
 .levels-table tbody td {
@@ -861,6 +868,21 @@
 
     .mvp-value {
         margin-left: 0;
+    }
+
+    /* Building Levels: swap full names for short codes — columns are too
+       tight on a narrow screen for "Chambers of Xeric" etc. to wrap nicely */
+    .levels-table__full-name {
+        display: none;
+    }
+
+    .levels-table__abbr-name {
+        display: inline;
+    }
+
+    .levels-table thead th {
+        white-space: nowrap;
+        max-width: none;
     }
 }
 

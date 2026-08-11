@@ -209,7 +209,10 @@
                     <thead>
                         <tr>
                             <th class="levels-table__name-col">Team</th>
-                            <th v-for="name in buildingLevelColumns" :key="name">{{ name }}</th>
+                            <th v-for="name in buildingLevelColumns" :key="name" :title="name">
+                                <span class="levels-table__full-name">{{ name }}</span>
+                                <span class="levels-table__abbr-name">{{ abbreviateBuilding(name) }}</span>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -252,6 +255,24 @@ export default {
             teams: [],
             buildings: [],
             teamColors: ['#8b5a3c', '#d4af37', '#4a7c8b', '#8b4a4a', '#5a8b5a', '#8b5a8b'],
+            // Client's rule: multiple words -> first letter of each; one word -> first 3 letters
+            buildingAbbreviations: {
+                'Chambers of Xeric': 'CoX',
+                'Classics': 'Cla',
+                'DT2': 'DT2',
+                'Fan Favourites': 'FF',
+                'Fortis': 'For',
+                'God Wars': 'GW',
+                'Minigames': 'Min',
+                'Misc': 'Mis',
+                'Noob-Friendly': 'NF',
+                'Skilling': 'Ski',
+                'Slayer Tower': 'ST',
+                'Theatre': 'The',
+                'Tombs': 'Tom',
+                'Town Hall': 'TH',
+                'Wilderness': 'Wil',
+            },
         };
     },
     computed: {
@@ -433,6 +454,9 @@ export default {
         },
         formatBuildingName(name) {
             return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        },
+        abbreviateBuilding(name) {
+            return this.buildingAbbreviations[name] || name;
         },
         normalizeBuilding(categoryName) {
             return categoryName.toLowerCase().replace(/\s+/g, '_');
