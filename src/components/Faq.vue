@@ -83,6 +83,11 @@
                                             9</strong></li>
                                     <li>Click on any building to view its upgrade costs and requirements</li>
                                     <li>Teams choose their own upgrade paths strategically</li>
+                                    <li>Once an option's requirements are fully met, its badge turns into an
+                                        <strong>✦ Upgrade</strong> button — click it and the upgrade happens
+                                        instantly, no admin needed</li>
+                                    <li>Buildings can have multiple upgrade options; if more than one is ready,
+                                        pick whichever you prefer</li>
                                 </ul>
                             </div>
 
@@ -239,12 +244,18 @@
                                 <h3 class="category-title">🗼 Slayer Tower</h3>
                                 <ul class="source-list">
                                     <li>Grotesque Guardians</li>
+                                    <li>Unsired</li>
+                                    <li>Dusk</li>
+                                    <li>Dawn</li>
                                     <li>Abyssal Sire</li>
-                                    <li>Kraken / Cave Kraken</li>
+                                    <li>Kraken</li>
+                                    <li>Cave kraken</li>
                                     <li>Cerberus</li>
                                     <li>Araxxor</li>
-                                    <li>Thermonuclear Smoke Devil</li>
+                                    <li>Thermonuclear smoke devil</li>
                                     <li>Alchemical Hydra</li>
+                                    <li>Shellbane Gryphon</li>
+                                    <li>Maggot King</li>
                                 </ul>
                             </div>
 
@@ -298,6 +309,7 @@
                                     <li>The Nightmare</li>
                                     <li>Phosani's Nightmare</li>
                                     <li>Phantom Muspah</li>
+                                    <li>Mad Angel</li>
                                 </ul>
                             </div>
 
@@ -321,6 +333,18 @@
                                     <li>General Graardor</li>
                                     <li>K'ril Tsutsaroth</li>
                                     <li>Nex</li>
+                                    <li>Sergeant Strongstack</li>
+                                    <li>Sergeant Steelwill</li>
+                                    <li>Sergeant Grimspike</li>
+                                    <li>Balfrug Kreeyath</li>
+                                    <li>Tstanon Karlak</li>
+                                    <li>Zakl'n Gritch</li>
+                                    <li>Flight Kilisa</li>
+                                    <li>Wingman Skree</li>
+                                    <li>Flockleader Geerin</li>
+                                    <li>Starlight</li>
+                                    <li>Bree</li>
+                                    <li>Growler</li>
                                 </ul>
                             </div>
 
@@ -328,10 +352,12 @@
                             <div class="source-category">
                                 <h3 class="category-title">👴 Classics</h3>
                                 <ul class="source-list">
-                                    <li>Barrows Brothers</li>
-                                    <li>Dagannoth Kings</li>
+                                    <li>Dagannoth Supreme</li>
+                                    <li>Dagannoth Rex</li>
+                                    <li>Dagannoth Prime</li>
                                     <li>Corporeal Beast</li>
                                     <li>Kalphite Queen</li>
+                                    <li>Barrows</li>
                                 </ul>
                             </div>
 
@@ -349,6 +375,7 @@
                             <div class="source-category">
                                 <h3 class="category-title">🌱 Noob-Friendly</h3>
                                 <ul class="source-list">
+                                    <li>Brutus</li>
                                     <li>Scurrius</li>
                                     <li>Giant Mole</li>
                                     <li>Obor</li>
@@ -372,14 +399,28 @@
                                 <h3 class="category-title">💀 Wilderness</h3>
                                 <ul class="source-list">
                                     <li>Chaos Fanatic</li>
-                                    <li>Crazy Archaeologist</li>
+                                    <li>Crazy archaeologist</li>
                                     <li>Scorpia</li>
                                     <li>King Black Dragon</li>
                                     <li>Chaos Elemental</li>
-                                    <li>All Revenants</li>
-                                    <li>Vet'ion / Calvar'ion</li>
-                                    <li>Venenatis / Spindel</li>
-                                    <li>Callisto / Artio</li>
+                                    <li>Revenant imp</li>
+                                    <li>Revenant goblin</li>
+                                    <li>Revenant pyrefiend</li>
+                                    <li>Revenant hobgoblin</li>
+                                    <li>Revenant cyclops</li>
+                                    <li>Revenant hellhound</li>
+                                    <li>Revenant demon</li>
+                                    <li>Revenant ork</li>
+                                    <li>Revenant dark beast</li>
+                                    <li>Revenant knight</li>
+                                    <li>Revenant dragon</li>
+                                    <li>Revenant maledictus</li>
+                                    <li>Vet'ion</li>
+                                    <li>Calvar'ion</li>
+                                    <li>Venenatis</li>
+                                    <li>Spindel</li>
+                                    <li>Callisto</li>
+                                    <li>Artio</li>
                                 </ul>
                             </div>
 
@@ -392,10 +433,24 @@
                                     <li>Zalcano</li>
                                     <li>Guardians of the Rift</li>
                                     <li>Bird nest</li>
-                                    <li>All salvages</li>
+                                    <li>Small salvage</li>
+                                    <li>Fishy salvage</li>
+                                    <li>Barracuda salvage</li>
+                                    <li>Large salvage</li>
+                                    <li>Plundered salvage</li>
+                                    <li>Martial salvage</li>
+                                    <li>Fremennik salvage</li>
+                                    <li>Opulent salvage</li>
                                     <li>Seed pack</li>
                                     <li>Herbiboar</li>
                                 </ul>
+                            </div>
+
+                            <!-- Town Hall -->
+                            <div class="source-category">
+                                <h3 class="category-title">🏠 Town Hall</h3>
+                                <p class="category-desc">The catch-all category — any drop that doesn't match one
+                                    of the other buildings' sources counts toward Town Hall instead.</p>
                             </div>
                         </div>
                     </div>
@@ -455,13 +510,24 @@
                             <div class="faq-card">
                                 <div class="faq-q">❓ How to check building level?</div>
                                 <div class="faq-a">Hover over the building or click on it to see its current level and
-                                    required resources for future upgrade.</div>
+                                    required resources for future upgrade. To compare every team's building levels
+                                    side by side at once, check the <em>Building Levels</em> table on the Log
+                                    page.</div>
+                            </div>
+
+                            <div class="faq-card">
+                                <div class="faq-q">❓ How do I actually upgrade a building?</div>
+                                <div class="faq-a">Click the building, then look at its upgrade options. Once you
+                                    have enough of every required resource for an option, its badge turns into an
+                                    <em>✦ Upgrade</em> button — click it and the upgrade happens immediately. The
+                                    building's level and next requirements update on their own, no page refresh
+                                    needed.</div>
                             </div>
 
                             <div class="faq-card">
                                 <div class="faq-q">❓ How do I see my team's resources?</div>
-                                <div class="faq-a">Team resources are listed in the Map page. To see your teams
-                                    resources, make sure your team is selected in Map legend area.</div>
+                                <div class="faq-a">Team resources are listed in the Map page. To see your team's
+                                    resources, make sure your team is selected in the Teams panel.</div>
                             </div>
 
                             <div class="faq-card">

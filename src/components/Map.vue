@@ -31,7 +31,7 @@
 
         <!-- Building Details Modal -->
         <BuildingDetailsModal :building="selectedBuilding" :team-resources="selectedTeamResources" @close="closeModal"
-            @open-building="onOpenBuilding" />
+            @open-building="onOpenBuilding" @upgraded="refreshBuildingsAfterUpgrade" />
 
         <!-- Team Stats Panel - TOP LEFT -->
         <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" :start-collapsed="teamStatsCollapsed"
@@ -51,10 +51,11 @@ import BuildingMarker from './BuildingMarker.vue';
 import buildingLocations from '@/data/buildingLocations.json';
 import BuildingDetailsModal from './BuildingDetailsModal.vue';
 import EasterEggMarker from './EasterEggMarker.vue';
-import { parseBackendBuildings } from '@/utils/buildingHelper';
+import { parseBackendBuildings, getBuildingImagePath, resolveDisplayName } from '@/utils/buildingHelper';
 import apiService from '@/services/apiService';
 import easterEggLocations from '@/data/easterEggLocations.json';
 import { cacheGet, cacheSet } from '@/utils/useCache';
+import { playRandomUpgradeSound } from '@/utils/useSound';
 
 export default {
     name: 'Map',
@@ -85,6 +86,7 @@ export default {
             teamStatsCollapsed: cacheGet('panel:teamStats', window.innerWidth <= 768),
             teamSelCollapsed: cacheGet('panel:teamSelection', window.innerWidth <= 768),
             resourceChangeEventSource: null,
+            buildingUpgradeEventSource: null,
         }
     },
     computed: {
@@ -110,6 +112,7 @@ export default {
         await this.loadBuildings();
         await this.loadResources();
         this.connectResourceChangeStream();
+        this.connectBuildingUpgradeStream();
         window.addEventListener('resize', this.onResize);
     },
     methods: {
@@ -174,7 +177,8 @@ export default {
                     if (!teamEntry) return;
 
                     for (const incomingSource of incoming.resources) {
-                        const existingSource = teamEntry.resources.find(r => r.source === incomingSource.source);
+                        const displayName = resolveDisplayName(incomingSource.source);
+                        const existingSource = teamEntry.resources.find(r => r.source === displayName);
                         if (!existingSource) continue;
 
                         for (const incomingTier of incomingSource.tiers) {
@@ -194,6 +198,78 @@ export default {
             this.resourceChangeEventSource.onerror = (e) => {
                 console.error('[ResourceStream] SSE error:', e);
             };
+        },
+        connectBuildingUpgradeStream() {
+            if (this.buildingUpgradeEventSource) {
+                this.buildingUpgradeEventSource.close();
+            }
+
+            this.buildingUpgradeEventSource = apiService.getBuildingUpgradeStream();
+
+            // Lightweight live patch: the stream only carries {team_name, building_name,
+            // new_level}, not the new upgradeOptions — enough to keep level badges/icons
+            // live everywhere (map markers, tabs, Log page) for every team's upgrades,
+            // but not enough to refresh "what's needed next". That part is handled by
+            // refreshBuildingsAfterUpgrade(), called only after the current user's own
+            // successful upgrade.
+            const handleUpgrade = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (!data.team_name || !data.building_name) return;
+
+                    const team = this.teams.find(t => t.name === data.team_name);
+                    if (!team) return;
+
+                    const buildingDisplayName = resolveDisplayName(data.building_name);
+                    const building = this.buildings.find(
+                        b => b.teamId === team.id && b.name === buildingDisplayName
+                    );
+                    if (!building) return;
+
+                    building.level = data.new_level;
+                    building.icon = getBuildingImagePath(building.name, data.new_level);
+
+                    if (this.selectedBuilding && this.selectedBuilding.teamId === building.teamId
+                        && this.selectedBuilding.name === building.name) {
+                        this.selectedBuilding = { ...building, teamName: this.selectedBuilding.teamName };
+                    }
+                } catch (e) {
+                    console.error('[BuildingUpgradeStream] Failed to parse SSE message:', e);
+                }
+            };
+
+            this.buildingUpgradeEventSource.addEventListener('history', handleUpgrade);
+            this.buildingUpgradeEventSource.addEventListener('upgrade', handleUpgrade);
+
+            // Only on genuinely live events, not the 'history' replay on connect -
+            // otherwise reloading the page would blast through every past upgrade's sound at once.
+            this.buildingUpgradeEventSource.addEventListener('upgrade', () => {
+                playRandomUpgradeSound();
+            });
+
+            this.buildingUpgradeEventSource.onerror = (e) => {
+                console.error('[BuildingUpgradeStream] SSE error:', e);
+            };
+        },
+        // Called after the current user's own successful upgrade — the stream can't
+        // supply the new upgradeOptions, so this is the "quick and dumb" refresh for that.
+        async refreshBuildingsAfterUpgrade() {
+            try {
+                const data = await apiService.getBuildings();
+                this.buildings = parseBackendBuildings(data.teamsBuildings, buildingLocations);
+            } catch (error) {
+                console.error('Failed to refresh buildings after upgrade:', error);
+                return;
+            }
+
+            // Buildings are re-parsed with fresh sequential ids, so re-match the open
+            // modal's building by its stable (teamId, name) key rather than by id.
+            if (this.selectedBuilding) {
+                const fresh = this.buildings.find(
+                    b => b.teamId === this.selectedBuilding.teamId && b.name === this.selectedBuilding.name
+                );
+                if (fresh) this.selectedBuilding = { ...fresh, teamName: this.selectedBuilding.teamName };
+            }
         },
         onImageLoad() {
             this.imageLoaded = true;
@@ -252,6 +328,7 @@ export default {
     beforeUnmount() {
         this.mapZoom.dispose();
         if (this.resourceChangeEventSource) this.resourceChangeEventSource.close();
+        if (this.buildingUpgradeEventSource) this.buildingUpgradeEventSource.close();
         window.removeEventListener('resize', this.onResize);
     }
 }

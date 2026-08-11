@@ -228,6 +228,7 @@
 <script>
 import apiService from '@/services/apiService';
 import { cacheGet, cacheSet } from '@/utils/useCache';
+import { resolveDisplayName } from '@/utils/buildingHelper';
 
 export default {
     name: 'TeamStats',
@@ -450,7 +451,7 @@ export default {
                         timestamp: data.timestamp,
                         relativeTime: this.formatRelativeTime(data.timestamp),
                         teamName: data.team_name,
-                        buildingName: data.building_name,
+                        buildingName: resolveDisplayName(data.building_name),
                         newLevel: data.new_level,
                     });
                     if (this.upgradeFeed.length > 100) this.upgradeFeed.pop();

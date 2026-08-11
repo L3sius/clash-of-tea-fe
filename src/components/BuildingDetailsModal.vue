@@ -45,9 +45,19 @@
                                 :class="{ 'upgrade-option--fulfilled': isOptionFulfilled(option) }">
                                 <div class="option-header">
                                     <span class="option-label">Option {{ option.optionId }}</span>
-                                    <span v-if="isOptionFulfilled(option)" class="fulfilled-badge">
-                                        ✦ Ready to upgrade
-                                    </span>
+                                    <button v-if="isOptionFulfilled(option)" class="upgrade-btn"
+                                        :disabled="upgradingOptionId === option.optionId"
+                                        @click="upgradeOption(option)">
+                                        {{ upgradingOptionId === option.optionId ? 'Upgrading…' : '✦ Upgrade' }}
+                                    </button>
+                                </div>
+                                <div v-if="upgradeErrors[option.optionId]" class="upgrade-error">
+                                    <p class="upgrade-error__message">{{ upgradeErrors[option.optionId].message }}</p>
+                                    <ul v-if="upgradeErrors[option.optionId].missing" class="upgrade-error__missing">
+                                        <li v-for="(m, i) in upgradeErrors[option.optionId].missing" :key="i">
+                                            {{ m.name }} T{{ m.tier }}: have {{ m.have }}, need {{ m.need }}
+                                        </li>
+                                    </ul>
                                 </div>
                                 <div class="requirements-grid">
                                     <div v-for="req in option.requirements" :key="`${req.name}-${req.tier}`"
@@ -104,6 +114,8 @@
 </template>
 
 <script>
+import apiService from '@/services/apiService';
+
 export default {
     name: 'BuildingDetailsModal',
     props: {
@@ -122,16 +134,37 @@ export default {
             touchStartY: 0,
             touchStartTime: 0,
             tierTooltip: { visible: false, text: '', x: 0, y: 0 },
+            upgradingOptionId: null,
+            upgradeErrors: {},
         };
     },
     watch: {
         building(val) {
             if (val) this.swipeDelta = 0;
+            this.upgradingOptionId = null;
+            this.upgradeErrors = {};
         }
     },
     methods: {
         close() {
             this.$emit('close');
+        },
+        async upgradeOption(option) {
+            if (this.upgradingOptionId) return;
+            this.upgradingOptionId = option.optionId;
+            const { [option.optionId]: _dropped, ...rest } = this.upgradeErrors;
+            this.upgradeErrors = rest;
+            try {
+                await apiService.upgradeBuilding(this.building.teamId, this.building.name, option.optionId);
+                this.$emit('upgraded');
+            } catch (error) {
+                this.upgradeErrors = {
+                    ...this.upgradeErrors,
+                    [option.optionId]: { message: error.message, missing: error.missing },
+                };
+            } finally {
+                this.upgradingOptionId = null;
+            }
         },
         getOwnedQty(req) {
             const source = this.teamResources.find(

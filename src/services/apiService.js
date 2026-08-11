@@ -45,6 +45,30 @@ class ApiService {
         }
     }
 
+    // Throws an Error with `.status` and (for 409 insufficient-drops) `.missing`
+    // attached, so callers can distinguish failure reasons.
+    async upgradeBuilding(teamId, building, optionId) {
+        let response;
+        try {
+            response = await fetch(`${API_BASE_URL}/upgradeBuilding`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ teamId, building, optionId }),
+            });
+        } catch (error) {
+            console.error('Error upgrading building:', error);
+            throw error;
+        }
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            const error = new Error(data.error || `HTTP error! status: ${response.status}`);
+            error.status = response.status;
+            error.missing = data.missing;
+            throw error;
+        }
+        return data;
+    }
+
     // Returns an EventSource for the live action stream.
     // Caller is responsible for closing it (eventSource.close()).
     getActionStream() {

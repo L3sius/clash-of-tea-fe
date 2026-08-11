@@ -550,6 +550,13 @@ code {
     color: #d4af37;
 }
 
+.category-desc {
+    color: #c9b896;
+    line-height: 1.6;
+    margin: 0;
+    font-style: italic;
+}
+
 /* Support Grid */
 .support-grid {
     display: grid;
