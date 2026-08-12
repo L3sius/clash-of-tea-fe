@@ -106,39 +106,36 @@
 
                             <div class="mechanic-card important">
                                 <h3 class="mechanic-title">⚡ Multiplier System</h3>
-                                <p class="mechanic-text">Buildings belong to a <strong>group</strong> of three
-                                    (e.g. Raids: Chambers of Xeric, Theatre, Tombs) — check the <em>Buildings</em>
-                                    tab to see which group each building is in.</p>
                                 <div class="multiplier-section">
+                                    <div class="multiplier-rule">
+                                        <span class="multiplier-icon">✨</span>
+                                        <div>
+                                            <strong>Building Multiplier (×2)</strong>
+                                            <p>Your drops with tier equal to or below the building level are
+                                                multiplied by 2.</p>
+                                            <div class="example-box">
+                                                <strong>Example:</strong> GWD Level 3 means all drops from GWD at
+                                                tier 3 or below are multiplied by 2.
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="multiplier-rule">
                                         <span class="multiplier-icon">🌟</span>
                                         <div>
                                             <strong>Group Multiplier (×2)</strong>
-                                            <p>If ALL buildings in a group are at level X or higher, drops of tier X
-                                                and below from ANY building in that group are multiplied by 2 -
-                                                not just the one that reached level X.</p>
+                                            <p>Each building belongs to a group. Your drops with tier equal to or
+                                                below the minimum building level in the group are also multiplied
+                                                by 2.</p>
                                             <div class="example-box">
-                                                <strong>Example:</strong> All 3 Raids buildings at Level 3+ → Tier
-                                                1-3 drops from Chambers of Xeric, Theatre, or Tombs are all ×2
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="multiplier-rule">
-                                        <span class="multiplier-icon">✨</span>
-                                        <div>
-                                            <strong>Building-Specific Multiplier (×2)</strong>
-                                            <p>If a specific building is at level X, drops from that building's monsters
-                                                of tier X and below are multiplied by 2.</p>
-                                            <div class="example-box">
-                                                <strong>Example:</strong> GWD building at Level 3 → All GWD drops of
-                                                Tier 1-3 are ×2
+                                                <strong>Example:</strong> All 3 Raids buildings (CoX, ToB, ToA) at
+                                                Level 5 means drops from CoX, ToB, or ToA at tier 5 or below are
+                                                multiplied by 2.
                                             </div>
                                         </div>
                                     </div>
                                     <p class="multiplier-note">
-                                        <strong>💡 These multipliers stack!</strong> A tier 3 drop from a level 3
-                                        building whose whole group is also level 3+ gets ×4 total (×2 group × ×2
-                                        building-specific).
+                                        <strong>💡 Multipliers stack!</strong> A drop that qualifies for both gets
+                                        ×2 × ×2 = ×4 total.
                                     </p>
                                 </div>
                             </div>
@@ -243,219 +240,19 @@
                         <p class="intro-text">Each building is associated with specific monsters and bosses. Drops from
                             these sources provide resources for their respective building:</p>
 
-                        <div class="sources-grid">
-                            <!-- Slayer Tower -->
-                            <div class="source-category">
-                                <h3 class="category-title">🗼 Slayer Tower</h3>
-                                <ul class="source-list">
-                                    <li>Grotesque Guardians</li>
-                                    <li>Unsired</li>
-                                    <li>Dusk</li>
-                                    <li>Dawn</li>
-                                    <li>Abyssal Sire</li>
-                                    <li>Kraken</li>
-                                    <li>Cave kraken</li>
-                                    <li>Cerberus</li>
-                                    <li>Araxxor</li>
-                                    <li>Thermonuclear smoke devil</li>
-                                    <li>Alchemical Hydra</li>
-                                    <li>Shellbane Gryphon</li>
+                        <div v-if="isLoadingBuildingSources" class="loading-state">
+                            <div class="loading-spinner">⏳</div>
+                            <p>Loading...</p>
+                        </div>
+                        <div v-else class="sources-grid">
+                            <div v-for="b in buildingSources" :key="b.name" class="source-category">
+                                <h3 class="category-title">{{ b.icon }} {{ b.building }}</h3>
+                                <p class="category-group">Group: {{ b.groupDisplayName }}</p>
+                                <ul v-if="b.allowedSources.length" class="source-list">
+                                    <li v-for="src in b.allowedSources" :key="src">{{ src }}</li>
                                 </ul>
-                            </div>
-
-                            <!-- Chambers of Xeric -->
-                            <div class="source-category">
-                                <h3 class="category-title">⚔️ Chambers of Xeric</h3>
-                                <ul class="source-list">
-                                    <li>Chambers of Xeric</li>
-                                    <li>Chambers of Xeric: Challenge Mode</li>
-                                </ul>
-                            </div>
-
-                            <!-- Theatre of Blood -->
-                            <div class="source-category">
-                                <h3 class="category-title">🎭 Theatre of Blood</h3>
-                                <ul class="source-list">
-                                    <li>Theatre of Blood</li>
-                                    <li>Theatre of Blood: Hard Mode</li>
-                                </ul>
-                            </div>
-
-                            <!-- Tombs of Amascut -->
-                            <div class="source-category">
-                                <h3 class="category-title">🏺 Tombs of Amascut</h3>
-                                <ul class="source-list">
-                                    <li>Tombs of Amascut</li>
-                                    <li>Tombs of Amascut: Expert Mode</li>
-                                </ul>
-                            </div>
-
-                            <!-- Minigames -->
-                            <div class="source-category">
-                                <h3 class="category-title">🎮 Minigames</h3>
-                                <ul class="source-list">
-                                    <li>The Mimic</li>
-                                    <li>Hespori</li>
-                                    <li>Skotizo</li>
-                                    <li>Fortis Colosseum</li>
-                                    <li>Gauntlet</li>
-                                    <li>Corrupted Gauntlet</li>
-                                    <li>Spoils of war</li>
-                                </ul>
-                            </div>
-
-                            <!-- Misc -->
-                            <div class="source-category">
-                                <h3 class="category-title">🎲 Misc</h3>
-                                <ul class="source-list">
-                                    <li>Sarachnis</li>
-                                    <li>Deranged Archaeologist</li>
-                                    <li>The Nightmare</li>
-                                    <li>Phosani's Nightmare</li>
-                                    <li>Phantom Muspah</li>
-                                    <li>Mad Angel</li>
-                                    <li>Maggot King</li>
-                                </ul>
-                            </div>
-
-                            <!-- DT2 -->
-                            <div class="source-category">
-                                <h3 class="category-title">💀 Desert Treasure 2</h3>
-                                <ul class="source-list">
-                                    <li>Duke Sucellus</li>
-                                    <li>The Leviathan</li>
-                                    <li>The Whisperer</li>
-                                    <li>Vardorvis</li>
-                                </ul>
-                            </div>
-
-                            <!-- God Wars Dungeon -->
-                            <div class="source-category">
-                                <h3 class="category-title">⚡ God Wars Dungeon</h3>
-                                <ul class="source-list">
-                                    <li>Kree'arra</li>
-                                    <li>Commander Zilyana</li>
-                                    <li>General Graardor</li>
-                                    <li>K'ril Tsutsaroth</li>
-                                    <li>Nex</li>
-                                    <li>Sergeant Strongstack</li>
-                                    <li>Sergeant Steelwill</li>
-                                    <li>Sergeant Grimspike</li>
-                                    <li>Balfrug Kreeyath</li>
-                                    <li>Tstanon Karlak</li>
-                                    <li>Zakl'n Gritch</li>
-                                    <li>Flight Kilisa</li>
-                                    <li>Wingman Skree</li>
-                                    <li>Flockleader Geerin</li>
-                                    <li>Starlight</li>
-                                    <li>Bree</li>
-                                    <li>Growler</li>
-                                </ul>
-                            </div>
-
-                            <!-- Classics -->
-                            <div class="source-category">
-                                <h3 class="category-title">👴 Classics</h3>
-                                <ul class="source-list">
-                                    <li>Dagannoth Supreme</li>
-                                    <li>Dagannoth Rex</li>
-                                    <li>Dagannoth Prime</li>
-                                    <li>Corporeal Beast</li>
-                                    <li>Kalphite Queen</li>
-                                    <li>Barrows</li>
-                                </ul>
-                            </div>
-
-                            <!-- Fortis -->
-                            <div class="source-category">
-                                <h3 class="category-title">🌙 Fortis</h3>
-                                <ul class="source-list">
-                                    <li>The Hueycoatl</li>
-                                    <li>Amoxliatl</li>
-                                    <li>Lunar Chest</li>
-                                </ul>
-                            </div>
-
-                            <!-- Noob Friendly -->
-                            <div class="source-category">
-                                <h3 class="category-title">🌱 Noob-Friendly</h3>
-                                <ul class="source-list">
-                                    <li>Brutus</li>
-                                    <li>Scurrius</li>
-                                    <li>Giant Mole</li>
-                                    <li>Obor</li>
-                                    <li>Bryophyta</li>
-                                </ul>
-                            </div>
-
-                            <!-- Fan Favourites -->
-                            <div class="source-category">
-                                <h3 class="category-title">⭐ Fan Favourites</h3>
-                                <ul class="source-list">
-                                    <li>Zulrah</li>
-                                    <li>Vorkath</li>
-                                    <li>Yama</li>
-                                    <li>Doom of Mokhaiotl</li>
-                                </ul>
-                            </div>
-
-                            <!-- Wilderness -->
-                            <div class="source-category">
-                                <h3 class="category-title">💀 Wilderness</h3>
-                                <ul class="source-list">
-                                    <li>Chaos Fanatic</li>
-                                    <li>Crazy archaeologist</li>
-                                    <li>Scorpia</li>
-                                    <li>King Black Dragon</li>
-                                    <li>Chaos Elemental</li>
-                                    <li>Revenant imp</li>
-                                    <li>Revenant goblin</li>
-                                    <li>Revenant pyrefiend</li>
-                                    <li>Revenant hobgoblin</li>
-                                    <li>Revenant cyclops</li>
-                                    <li>Revenant hellhound</li>
-                                    <li>Revenant demon</li>
-                                    <li>Revenant ork</li>
-                                    <li>Revenant dark beast</li>
-                                    <li>Revenant knight</li>
-                                    <li>Revenant dragon</li>
-                                    <li>Revenant maledictus</li>
-                                    <li>Vet'ion</li>
-                                    <li>Calvar'ion</li>
-                                    <li>Venenatis</li>
-                                    <li>Spindel</li>
-                                    <li>Callisto</li>
-                                    <li>Artio</li>
-                                </ul>
-                            </div>
-
-                            <!-- Skilling -->
-                            <div class="source-category">
-                                <h3 class="category-title">⛏️ Skilling</h3>
-                                <ul class="source-list">
-                                    <li>Wintertodt</li>
-                                    <li>Tempoross</li>
-                                    <li>Zalcano</li>
-                                    <li>Guardians of the Rift</li>
-                                    <li>Bird nest</li>
-                                    <li>Small salvage</li>
-                                    <li>Fishy salvage</li>
-                                    <li>Barracuda salvage</li>
-                                    <li>Large salvage</li>
-                                    <li>Plundered salvage</li>
-                                    <li>Martial salvage</li>
-                                    <li>Fremennik salvage</li>
-                                    <li>Opulent salvage</li>
-                                    <li>Seed pack</li>
-                                    <li>Herbiboar</li>
-                                </ul>
-                            </div>
-
-                            <!-- Town Hall -->
-                            <div class="source-category">
-                                <h3 class="category-title">🏠 Town Hall</h3>
-                                <p class="category-desc">The catch-all category — any drop that doesn't match one
-                                    of the other buildings' sources counts toward Town Hall instead.</p>
+                                <p v-else class="category-desc">The catch-all category — any drop that doesn't
+                                    match one of the other buildings' sources counts toward this one instead.</p>
                             </div>
                         </div>
                     </div>
@@ -530,6 +327,13 @@
                             </div>
 
                             <div class="faq-card">
+                                <div class="faq-q">❓ Where can I see my current multipliers?</div>
+                                <div class="faq-a">Open the Buildings tab in the Team Stats panel — each group
+                                    header shows the tier it has unlocked, and each building shows its own
+                                    tier-by-tier multiplier breakdown.</div>
+                            </div>
+
+                            <div class="faq-card">
                                 <div class="faq-q">❓ How do I see my team's resources?</div>
                                 <div class="faq-a">Team resources are listed in the Map page. To see your team's
                                     resources, make sure your team is selected in the Teams panel.</div>
@@ -561,6 +365,28 @@
 </template>
 
 <script>
+import apiService from '@/services/apiService';
+
+// Purely cosmetic per-building icon - not game data, so it's fine to keep this
+// as the one hardcoded piece; everything else here now comes from /getBuildings.
+const BUILDING_ICONS = {
+    slayer_tower: '🗼',
+    cox: '⚔️',
+    theatre: '🎭',
+    tombs: '🏺',
+    minigames: '🎮',
+    misc: '🎲',
+    dt2: '💀',
+    gwd: '⚡',
+    classics: '👴',
+    fortis: '🌙',
+    noob_friendly: '🌱',
+    fan_favourites: '⭐',
+    wilderness: '💀',
+    skilling: '⛏️',
+    town_hall: '🏠',
+};
+
 export default {
     name: 'FaqPage',
     data() {
@@ -573,7 +399,31 @@ export default {
                 { id: 'sources', number: 'IV', name: 'Building Sources' },
                 { id: 'support', number: 'V', name: 'Support' },
                 { id: 'faq', number: 'VI', name: 'FAQ' }
-            ]
+            ],
+            buildingSources: [],
+            isLoadingBuildingSources: true,
+        }
+    },
+    async created() {
+        try {
+            const data = await apiService.getBuildings();
+            // allowedSources/group are identical for every team - any one team's
+            // copy is the canonical list of all 15 buildings.
+            const buildings = data.teamsBuildings?.[0]?.buildings || [];
+            this.buildingSources = buildings
+                .map(b => ({
+                    name: b.name,
+                    building: b.building,
+                    groupDisplayName: b.groupDisplayName,
+                    allowedSources: b.allowedSources || [],
+                    icon: BUILDING_ICONS[b.name] || '🏰',
+                }))
+                .sort((a, b) => a.building.localeCompare(b.building));
+        } catch (error) {
+            console.error('Failed to load building sources:', error);
+            this.buildingSources = [];
+        } finally {
+            this.isLoadingBuildingSources = false;
         }
     },
     methods: {

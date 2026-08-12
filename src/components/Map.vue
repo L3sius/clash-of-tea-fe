@@ -30,8 +30,9 @@
         </div>
 
         <!-- Building Details Modal -->
-        <BuildingDetailsModal :building="selectedBuilding" :team-resources="selectedTeamResources" @close="closeModal"
-            @open-building="onOpenBuilding" @upgraded="refreshBuildingsAfterUpgrade" />
+        <BuildingDetailsModal :building="selectedBuilding" :team-resources="selectedTeamResources"
+            :team-multipliers="teamMultipliers" @close="closeModal" @open-building="onOpenBuilding"
+            @upgraded="refreshBuildingsAfterUpgrade" />
 
         <!-- Team Stats Panel - TOP LEFT -->
         <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" :start-collapsed="teamStatsCollapsed"

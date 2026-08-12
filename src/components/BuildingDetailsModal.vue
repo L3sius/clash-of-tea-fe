@@ -20,7 +20,11 @@
                 <!-- Header: title + level only -->
                 <div class="modal-header">
                     <div class="header-content">
-                        <h2 class="building-name">{{ building.name }}</h2>
+                        <div class="building-title-block">
+                            <h2 class="building-name">{{ building.name }}</h2>
+                            <span v-if="building.groupDisplayName" class="building-group-label">{{
+                                building.groupDisplayName }}</span>
+                        </div>
                         <div class="building-level-badge">Level {{ building.level }}</div>
                     </div>
                     <button class="close-btn" @click="close">✕</button>
@@ -30,6 +34,18 @@
                 <div class="team-info">
                     <span class="team-label">Team:</span>
                     <span class="team-name">{{ building.teamName }}</span>
+                </div>
+
+                <!-- Current multiplier breakdown for this building -->
+                <div v-if="currentMultipliers" class="modal-section modal-multipliers-block">
+                    <h3 class="section-title">✨ Current Multipliers</h3>
+                    <div class="modal-multipliers">
+                        <span v-for="range in multiplierRanges(currentMultipliers.tierMultipliers)" :key="range.from"
+                            class="mult-chip" :class="multiplierClass(range.multiplier)">
+                            {{ range.from === range.to ? `T${range.from}` : `T${range.from}-T${range.to}` }}
+                            ×{{ range.multiplier }}
+                        </span>
+                    </div>
                 </div>
 
                 <div class="modal-divider"></div>
@@ -115,6 +131,7 @@
 
 <script>
 import apiService from '@/services/apiService';
+import { multiplierRanges, multiplierClass } from '@/utils/buildingHelper';
 
 export default {
     name: 'BuildingDetailsModal',
@@ -124,6 +141,10 @@ export default {
             default: null
         },
         teamResources: {
+            type: Array,
+            default: () => []
+        },
+        teamMultipliers: {
             type: Array,
             default: () => []
         }
@@ -145,7 +166,17 @@ export default {
             this.upgradeErrors = {};
         }
     },
+    computed: {
+        currentMultipliers() {
+            if (!this.building) return null;
+            const teamData = this.teamMultipliers.find(t => t.teamId === this.building.teamId);
+            if (!teamData) return null;
+            return teamData.categoryMultipliers.find(c => c.building === this.building.internalName) || null;
+        },
+    },
     methods: {
+        multiplierRanges,
+        multiplierClass,
         close() {
             this.$emit('close');
         },

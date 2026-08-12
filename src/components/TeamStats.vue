@@ -253,7 +253,7 @@
 <script>
 import apiService from '@/services/apiService';
 import { cacheGet, cacheSet } from '@/utils/useCache';
-import { resolveDisplayName } from '@/utils/buildingHelper';
+import { resolveDisplayName, multiplierRanges, multiplierClass } from '@/utils/buildingHelper';
 
 export default {
     name: 'TeamStats',
@@ -565,30 +565,8 @@ export default {
         isTabOptionFulfilled(option, teamId) {
             return option.requirements.every(req => this.isTabReqFulfilled(req, teamId));
         },
-        // Collapses consecutive tiers sharing the same multiplier into ranges
-        // (e.g. T1-T4 x4, T5-T6 x2, T7-T9 x1) instead of one chip per tier.
-        multiplierRanges(tierMultipliers) {
-            if (!tierMultipliers || !tierMultipliers.length) return [];
-            const ranges = [];
-            tierMultipliers.forEach(({ tier, multiplier }) => {
-                const last = ranges[ranges.length - 1];
-                if (last && last.multiplier === multiplier) {
-                    last.to = tier;
-                } else {
-                    ranges.push({ from: tier, to: tier, multiplier });
-                }
-            });
-            return ranges;
-        },
-        // A range spans multiple tiers, so it can't honestly carry one tier's
-        // color - bucket by the multiplier's own value instead ("how boosted"
-        // rather than "which tier", which the label text already shows).
-        multiplierClass(value) {
-            if (value <= 1) return 'mult-x1';
-            if (value === 2) return 'mult-x2';
-            if (value === 4) return 'mult-x4';
-            return 'mult-xhigh';
-        },
+        multiplierRanges,
+        multiplierClass,
     },
     mounted() {
         document.addEventListener('click', this.handleOutsideTabDropdownClick);
