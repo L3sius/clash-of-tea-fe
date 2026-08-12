@@ -106,16 +106,20 @@
 
                             <div class="mechanic-card important">
                                 <h3 class="mechanic-title">⚡ Multiplier System</h3>
+                                <p class="mechanic-text">Buildings belong to a <strong>group</strong> of three
+                                    (e.g. Raids: Chambers of Xeric, Theatre, Tombs) — check the <em>Buildings</em>
+                                    tab to see which group each building is in.</p>
                                 <div class="multiplier-section">
                                     <div class="multiplier-rule">
                                         <span class="multiplier-icon">🌟</span>
                                         <div>
-                                            <strong>Global Multiplier (×2)</strong>
-                                            <p>If ALL buildings are at level X or higher, ALL drops of tier X and below
-                                                are multiplied by 2.</p>
+                                            <strong>Group Multiplier (×2)</strong>
+                                            <p>If ALL buildings in a group are at level X or higher, drops of tier X
+                                                and below from ANY building in that group are multiplied by 2 -
+                                                not just the one that reached level X.</p>
                                             <div class="example-box">
-                                                <strong>Example:</strong> All buildings at Level 2+ → Tier 1 and Tier 2
-                                                drops are ×2 for all buildings
+                                                <strong>Example:</strong> All 3 Raids buildings at Level 3+ → Tier
+                                                1-3 drops from Chambers of Xeric, Theatre, or Tombs are all ×2
                                             </div>
                                         </div>
                                     </div>
@@ -132,8 +136,9 @@
                                         </div>
                                     </div>
                                     <p class="multiplier-note">
-                                        <strong>💡 These multipliers stack!</strong> A tier 2 drop from a level 3
-                                        building when all buildings are level 2+ gets ×4 total.
+                                        <strong>💡 These multipliers stack!</strong> A tier 3 drop from a level 3
+                                        building whose whole group is also level 3+ gets ×4 total (×2 group × ×2
+                                        building-specific).
                                     </p>
                                 </div>
                             </div>
