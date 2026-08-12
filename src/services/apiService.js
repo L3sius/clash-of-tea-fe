@@ -23,6 +23,17 @@ class ApiService {
         }
     }
 
+    async getMultipliers() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/getMultipliers`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching multipliers:', error);
+            throw error;
+        }
+    }
+
     async getTeamsResources() {
         try {
             const response = await fetch(`${API_BASE_URL}/getTeamsResources`);

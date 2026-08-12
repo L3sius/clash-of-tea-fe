@@ -171,50 +171,75 @@
                         <div class="empty-icon">🏰</div>
                         <p>No buildings for selected team</p>
                     </div>
-                    <div v-else class="buildings-tab-list">
-                        <div v-for="building in buildingsForTab" :key="building.id ?? building.name"
-                            class="building-tab-item">
-
-                            <!-- Building header: name + level -->
-                            <div class="building-tab-header">
-                                <span class="building-tab-name">{{ building.name }}</span>
-                                <span class="building-tab-level"
-                                    :class="building.level > 0 ? 'level--upgraded' : 'level--zero'">
-                                    Lvl {{ building.level }}
+                    <div v-else class="building-groups-list">
+                        <div v-for="group in groupedBuildingsForTab" :key="group.key || 'ungrouped'"
+                            class="building-group">
+                            <div class="building-group__header">
+                                <span class="building-group__name">{{ group.displayName }}</span>
+                                <span v-if="group.unlockedTier != null" class="building-group__tier"
+                                    @mouseenter="showTooltip($event, tierLabel(group.unlockedTier))"
+                                    @mouseleave="hideTooltip()">
+                                    Tier {{ group.unlockedTier }} unlocked
                                 </span>
                             </div>
 
-                            <!-- Max level -->
-                            <div v-if="!building.upgradable" class="building-tab-maxed">
-                                🏆 Max level
-                            </div>
+                            <div class="buildings-tab-list">
+                                <div v-for="building in group.buildings" :key="building.id ?? building.name"
+                                    class="building-tab-item">
 
-                            <!-- Upgrade options with owned/required counts -->
-                            <div v-else-if="building.upgradeOptions && building.upgradeOptions.length"
-                                class="building-tab-options">
-                                <div v-for="option in building.upgradeOptions" :key="option.optionId"
-                                    class="building-tab-option"
-                                    :class="{ 'option--fulfilled': isTabOptionFulfilled(option, building.teamId) }">
-                                    <span class="building-tab-option-label">{{ option.optionId }}</span>
-                                    <div class="building-tab-reqs">
-                                        <span v-for="(req, i) in option.requirements" :key="i" class="building-tab-req"
-                                            :class="isTabReqFulfilled(req, building.teamId) ? 'req--met' : 'req--unmet'">
-                                            <span class="req-name">{{ req.name }}</span>
-                                            <span class="req-tier" :data-tier="req.tier"
-                                                @mouseenter="showTooltip($event, tierLabel(req.tier))"
-                                                @mouseleave="hideTooltip()">T{{
-                                                req.tier }}</span>
-                                            <span class="req-progress">
-                                                {{ getOwnedQtyForTab(req, building.teamId) }}/{{ req.quantity }}
-                                            </span>
-                                            <span v-if="i < option.requirements.length - 1" class="req-sep">+</span>
+                                    <!-- Building header: name + level -->
+                                    <div class="building-tab-header">
+                                        <span class="building-tab-name">{{ building.name }}</span>
+                                        <span class="building-tab-level"
+                                            :class="building.level > 0 ? 'level--upgraded' : 'level--zero'">
+                                            Lvl {{ building.level }}
                                         </span>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div v-else class="building-tab-no-options">
-                                No upgrade path defined
+                                    <!-- Multiplier breakdown, collapsed into tier ranges -->
+                                    <div v-if="building.tierMultipliers" class="building-tab-multipliers">
+                                        <span v-for="range in multiplierRanges(building.tierMultipliers)"
+                                            :key="range.from" class="mult-chip" :class="multiplierClass(range.multiplier)">
+                                            {{ range.from === range.to ? `T${range.from}` : `T${range.from}-T${range.to}` }}
+                                            ×{{ range.multiplier }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Max level -->
+                                    <div v-if="!building.upgradable" class="building-tab-maxed">
+                                        🏆 Max level
+                                    </div>
+
+                                    <!-- Upgrade options with owned/required counts -->
+                                    <div v-else-if="building.upgradeOptions && building.upgradeOptions.length"
+                                        class="building-tab-options">
+                                        <div v-for="option in building.upgradeOptions" :key="option.optionId"
+                                            class="building-tab-option"
+                                            :class="{ 'option--fulfilled': isTabOptionFulfilled(option, building.teamId) }">
+                                            <span class="building-tab-option-label">{{ option.optionId }}</span>
+                                            <div class="building-tab-reqs">
+                                                <span v-for="(req, i) in option.requirements" :key="i"
+                                                    class="building-tab-req"
+                                                    :class="isTabReqFulfilled(req, building.teamId) ? 'req--met' : 'req--unmet'">
+                                                    <span class="req-name">{{ req.name }}</span>
+                                                    <span class="req-tier" :data-tier="req.tier"
+                                                        @mouseenter="showTooltip($event, tierLabel(req.tier))"
+                                                        @mouseleave="hideTooltip()">T{{
+                                                        req.tier }}</span>
+                                                    <span class="req-progress">
+                                                        {{ getOwnedQtyForTab(req, building.teamId) }}/{{ req.quantity }}
+                                                    </span>
+                                                    <span v-if="i < option.requirements.length - 1"
+                                                        class="req-sep">+</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div v-else class="building-tab-no-options">
+                                        No upgrade path defined
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -239,6 +264,7 @@ export default {
         startCollapsed: { type: Boolean, default: null },
         teamResources: { type: Array, default: () => [] },
         buildings: { type: Array, default: () => [] },
+        teamMultipliers: { type: Array, default: () => [] },
     },
     data() {
         const isMobile = window.innerWidth <= 768;
@@ -290,6 +316,43 @@ export default {
                 .filter(b => b.teamId === this.selectedTeamId)
                 .slice()
                 .sort((a, b) => a.name.localeCompare(b.name));
+        },
+        currentTeamMultipliers() {
+            if (!this.selectedTeamId) return null;
+            return this.teamMultipliers.find(t => t.teamId === this.selectedTeamId) || null;
+        },
+        // Buildings grouped for display, each carrying its own tierMultipliers and
+        // its group's unlockedTier - both come from /getMultipliers, joined against
+        // /getBuildings via the internalName field both responses share.
+        groupedBuildingsForTab() {
+            const multData = this.currentTeamMultipliers;
+            const categoryMap = new Map();
+            const groupInfoMap = new Map();
+            if (multData) {
+                multData.categoryMultipliers.forEach(c => categoryMap.set(c.building, c));
+                multData.groupMultipliers.forEach(g => groupInfoMap.set(g.group, g));
+            }
+
+            const groups = new Map();
+            this.buildingsForTab.forEach(building => {
+                const mult = categoryMap.get(building.internalName);
+                const groupKey = building.group || '';
+                if (!groups.has(groupKey)) {
+                    const info = groupInfoMap.get(groupKey);
+                    groups.set(groupKey, {
+                        key: groupKey,
+                        displayName: building.groupDisplayName || info?.displayName || 'Ungrouped',
+                        unlockedTier: info ? info.unlockedTier : null,
+                        buildings: [],
+                    });
+                }
+                groups.get(groupKey).buildings.push({
+                    ...building,
+                    tierMultipliers: mult ? mult.tierMultipliers : null,
+                });
+            });
+
+            return [...groups.values()].sort((a, b) => a.displayName.localeCompare(b.displayName));
         },
     },
     watch: {
@@ -501,6 +564,30 @@ export default {
         },
         isTabOptionFulfilled(option, teamId) {
             return option.requirements.every(req => this.isTabReqFulfilled(req, teamId));
+        },
+        // Collapses consecutive tiers sharing the same multiplier into ranges
+        // (e.g. T1-T4 x4, T5-T6 x2, T7-T9 x1) instead of one chip per tier.
+        multiplierRanges(tierMultipliers) {
+            if (!tierMultipliers || !tierMultipliers.length) return [];
+            const ranges = [];
+            tierMultipliers.forEach(({ tier, multiplier }) => {
+                const last = ranges[ranges.length - 1];
+                if (last && last.multiplier === multiplier) {
+                    last.to = tier;
+                } else {
+                    ranges.push({ from: tier, to: tier, multiplier });
+                }
+            });
+            return ranges;
+        },
+        // A range spans multiple tiers, so it can't honestly carry one tier's
+        // color - bucket by the multiplier's own value instead ("how boosted"
+        // rather than "which tier", which the label text already shows).
+        multiplierClass(value) {
+            if (value <= 1) return 'mult-x1';
+            if (value === 2) return 'mult-x2';
+            if (value === 4) return 'mult-x4';
+            return 'mult-xhigh';
         },
     },
     mounted() {

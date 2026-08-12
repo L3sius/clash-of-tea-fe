@@ -69,6 +69,12 @@ export function parseBackendBuildings(teamsBuildings, buildingLocations) {
         teamId: teamData.teamId,
         teamName: teamData.teamName,
         name: buildingData.building,
+        // Stable internal name (e.g. "cox") - a different vocabulary than the
+        // SSE streams' category codes (e.g. "cox" vs "slayer"/"tob"/"toa"/etc.
+        // don't all match), but the same one /getMultipliers joins on.
+        internalName: buildingData.name,
+        group: buildingData.group || '',
+        groupDisplayName: buildingData.groupDisplayName || '',
         level: buildingData.buildingLevel,
         upgradable: buildingData.upgradable,
         allowedSources: buildingData.allowedSources || [],

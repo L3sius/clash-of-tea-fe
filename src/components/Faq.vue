@@ -255,7 +255,6 @@
                                     <li>Thermonuclear smoke devil</li>
                                     <li>Alchemical Hydra</li>
                                     <li>Shellbane Gryphon</li>
-                                    <li>Maggot King</li>
                                 </ul>
                             </div>
 
@@ -310,6 +309,7 @@
                                     <li>Phosani's Nightmare</li>
                                     <li>Phantom Muspah</li>
                                     <li>Mad Angel</li>
+                                    <li>Maggot King</li>
                                 </ul>
                             </div>
 

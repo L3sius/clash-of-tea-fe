@@ -35,7 +35,8 @@
 
         <!-- Team Stats Panel - TOP LEFT -->
         <TeamStats :selectedTeamId="selectedTeamId" :teams="teams" :start-collapsed="teamStatsCollapsed"
-            :team-resources="teamResources" :buildings="buildings" @collapsed-changed="onTeamStatsCollapsed" />
+            :team-resources="teamResources" :buildings="buildings" :team-multipliers="teamMultipliers"
+            @collapsed-changed="onTeamStatsCollapsed" />
 
         <!-- Team Selection - BOTTOM RIGHT -->
         <TeamSelection :teams="teams" :initial-team-id="selectedTeamId" :start-collapsed="teamSelCollapsed"
@@ -76,6 +77,7 @@ export default {
             teams: [],
             buildings: [],
             teamResources: [],
+            teamMultipliers: [],
             easterEggs: easterEggLocations,
             selectedTeamId: cacheGet('selectedTeamId', null),
             selectedBuildingId: null,
@@ -111,6 +113,7 @@ export default {
         await this.loadTeams();
         await this.loadBuildings();
         await this.loadResources();
+        await this.loadMultipliers();
         this.connectResourceChangeStream();
         this.connectBuildingUpgradeStream();
         window.addEventListener('resize', this.onResize);
@@ -158,6 +161,15 @@ export default {
             } catch (error) {
                 console.error('Failed to load resources:', error);
                 this.teamResources = [];
+            }
+        },
+        async loadMultipliers() {
+            try {
+                const data = await apiService.getMultipliers();
+                this.teamMultipliers = data.teamMultipliers;
+            } catch (error) {
+                console.error('Failed to load multipliers:', error);
+                this.teamMultipliers = [];
             }
         },
         connectResourceChangeStream() {
@@ -241,10 +253,22 @@ export default {
             this.buildingUpgradeEventSource.addEventListener('history', handleUpgrade);
             this.buildingUpgradeEventSource.addEventListener('upgrade', handleUpgrade);
 
-            // Only on genuinely live events, not the 'history' replay on connect -
-            // otherwise reloading the page would blast through every past upgrade's sound at once.
-            this.buildingUpgradeEventSource.addEventListener('upgrade', () => {
+            // Only on genuinely live events, not the 'history' replay on connect - otherwise
+            // reloading the page would blast through every past upgrade's sound/refresh at once.
+            this.buildingUpgradeEventSource.addEventListener('upgrade', (event) => {
                 playRandomUpgradeSound();
+                try {
+                    const data = JSON.parse(event.data);
+                    const team = this.teams.find(t => t.name === data.team_name);
+                    // Multipliers are server-derived (no cheap client-side patch) and only
+                    // ever shown for the currently selected team, so only refetch when
+                    // this event is actually about that team.
+                    if (team && team.id === this.selectedTeamId) {
+                        this.refreshMultipliers();
+                    }
+                } catch (e) {
+                    // handleUpgrade() above already logs parse failures for this same event.
+                }
             });
 
             this.buildingUpgradeEventSource.onerror = (e) => {
@@ -269,6 +293,16 @@ export default {
                     b => b.teamId === this.selectedBuilding.teamId && b.name === this.selectedBuilding.name
                 );
                 if (fresh) this.selectedBuilding = { ...fresh, teamName: this.selectedBuilding.teamName };
+            }
+
+            this.refreshMultipliers();
+        },
+        async refreshMultipliers() {
+            try {
+                const data = await apiService.getMultipliers();
+                this.teamMultipliers = data.teamMultipliers;
+            } catch (error) {
+                console.error('Failed to refresh multipliers:', error);
             }
         },
         onImageLoad() {

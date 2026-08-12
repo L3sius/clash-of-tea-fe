@@ -766,11 +766,84 @@
    Buildings Tab
    ═══════════════════════════════════════════════ */
 
-.buildings-tab-list {
+.building-groups-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.45rem;
+    gap: 0.75rem 0.6rem;
     align-items: start;
+}
+
+.building-group__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(139, 115, 85, 0.3);
+}
+
+.building-group__name {
+    color: #d4af37;
+    font-size: 0.95rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.building-group__tier {
+    color: #a89070;
+    font-size: 0.72rem;
+    font-style: italic;
+    cursor: help;
+}
+
+.buildings-tab-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+/* ── Multiplier breakdown, collapsed into tier ranges ── */
+.building-tab-multipliers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.mult-chip {
+    font-size: 0.68rem;
+    font-weight: bold;
+    padding: 0.08rem 0.35rem;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+/* Colored by the multiplier's own value ("how boosted"), not by tier -
+   a range spans several tiers so it can't honestly carry one tier's color,
+   and the tier identity is already in the label text itself. */
+.mult-chip.mult-x1 {
+    color: #8b7355;
+    background: rgba(139, 115, 85, 0.1);
+    border: 1px solid rgba(139, 115, 85, 0.25);
+}
+
+.mult-chip.mult-x2 {
+    color: #d4af37;
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.mult-chip.mult-x4 {
+    color: #fb923c;
+    background: rgba(251, 146, 60, 0.15);
+    border: 1px solid rgba(251, 146, 60, 0.4);
+}
+
+.mult-chip.mult-xhigh {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.15);
+    border: 1px solid rgba(248, 113, 113, 0.45);
 }
 
 .building-tab-item {
@@ -1001,13 +1074,8 @@
         max-width: 420px;
     }
 
-    .buildings-tab-list {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .buildings-tab-list {
+    /* Not enough width for two group columns on mobile */
+    .building-groups-list {
         grid-template-columns: 1fr;
     }
 }
