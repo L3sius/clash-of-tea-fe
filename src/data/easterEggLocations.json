@@ -14,5 +14,6 @@
   { "description": "Can I tag everyone? @Sugar @Shlaters @Acid @Cho", "x": 50, "y": 55, "image": "everyone.png" },
   { "description": "I leave all loot!", "x": 61, "y": 77, "image": "acid_pool.png" },
   { "description": "Meet the Retirement crew: Mc Red, Googs & Jaytee", "x": 88, "y": 48, "image": "" },
-  { "description": "The 'CG 6:20' Bridge", "x": 29, "y": 26, "image": "brim.png" }
+  { "description": "The 'CG 6:20' Bridge", "x": 29, "y": 26, "image": "brim.png" },
+  { "description": "Wah wah, this is rigged!", "x": 89, "y": 65, "image": "rigged.png" }
 ]
