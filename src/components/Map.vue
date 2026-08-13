@@ -257,14 +257,15 @@ export default {
             // Only on genuinely live events, not the 'history' replay on connect - otherwise
             // reloading the page would blast through every past upgrade's sound/refresh at once.
             this.buildingUpgradeEventSource.addEventListener('upgrade', (event) => {
-                playRandomUpgradeSound();
                 try {
                     const data = JSON.parse(event.data);
                     const team = this.teams.find(t => t.name === data.team_name);
-                    // Multipliers are server-derived (no cheap client-side patch) and only
-                    // ever shown for the currently selected team, so only refetch when
-                    // this event is actually about that team.
+                    // Both the sound and the multiplier refresh only make sense for the
+                    // currently selected team - the sound is feedback for "your" team's
+                    // progress, and multipliers (server-derived, no cheap client patch)
+                    // are only ever displayed for whichever team is currently selected.
                     if (team && team.id === this.selectedTeamId) {
+                        playRandomUpgradeSound();
                         this.refreshMultipliers();
                     }
                 } catch (e) {
