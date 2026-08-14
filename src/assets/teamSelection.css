@@ -133,6 +133,65 @@
     border-radius: 3px;
 }
 
+/* ── Solo/Duo event mode (temporary - see the const in TeamSelection.vue) ── */
+.solo-duo-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.solo-duo-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.5rem;
+    background: rgba(20, 15, 10, 0.5);
+    border: 2px solid rgba(139, 115, 85, 0.3);
+    border-radius: 6px;
+    color: #c9b896;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.solo-duo-tab:hover {
+    border-color: rgba(139, 115, 85, 0.6);
+    color: #f4e4c1;
+}
+
+.solo-duo-tab.active {
+    background: rgba(60, 45, 30, 0.8);
+    border-color: #d4af37;
+    color: #f4e4c1;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+}
+
+/* Single column so full team names show without truncation */
+.legend-content--single {
+    grid-template-columns: 1fr;
+}
+
+/* Wider than the default 260px so one-row-per-team names fit on a single
+   line - duo names combine two players' names, so they run long. Clamped
+   against the viewport so it can't overflow a narrower desktop window. */
+.legend-panel.legend-panel--wide {
+    width: min(400px, calc(100vw - 4rem));
+}
+
+.legend-content--single .team-name {
+    /* No wrapping, ever - the wide panel above fits the vast majority of
+       names on one line; ellipsis is just a safety net for outliers,
+       falling back to the existing hover tooltip to show the full name. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 330px;
+}
+
 .legend-content {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -194,7 +253,9 @@
 .team-item:hover {
     background: rgba(40, 30, 20, 0.6);
     border-color: rgba(139, 115, 85, 0.6);
-    transform: translateX(-3px);
+    /* No translateX here - .legend-content scrolls (overflow-y: auto), which
+       forces its overflow-x non-visible too, so shifting the row left just
+       clips it against that boundary instead of looking like a nudge. */
     box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
 }
 
@@ -242,32 +303,6 @@
     max-width: 78px;
 }
 
-.team-legend-tooltip {
-    position: fixed;
-    transform: translate(-50%, calc(-100% - 8px));
-    background: linear-gradient(135deg, rgba(40, 30, 20, 0.98), rgba(30, 20, 15, 0.98));
-    border: 1px solid #8b7355;
-    border-radius: 4px;
-    padding: 0.4rem 0.7rem;
-    color: #f4e4c1;
-    font-family: 'Georgia', 'Times New Roman', serif;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 99999;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-}
-
-.team-legend-tooltip::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 4px solid transparent;
-    border-top-color: #8b7355;
-}
-
 /* ── Mobile ── */
 @media (max-width: 768px) {
     .legend-container {
@@ -279,6 +314,19 @@
     .legend-panel {
         width: 180px;
         padding: 0.75rem;
+    }
+
+    /* Same selector specificity as the desktop rule, so source order (this
+       comes later) is what makes it win here - a 340px panel would overflow
+       a phone screen, so mobile stays at the default width regardless of mode */
+    .legend-panel.legend-panel--wide {
+        width: 180px;
+    }
+
+    /* Wrapping (not single-line) is safer than overflowing a 180px-wide panel */
+    .legend-content--single .team-name {
+        white-space: normal;
+        max-width: 115px;
     }
 
     .legend-content {
